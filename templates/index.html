@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Kalnia+Glaze:wght@100..700&display=swap');
+    
+    .topic {
+      text-shadow: 2px 2px 4px black;
+      text-align: center;
+      font-size: 3em;
+      font-family: 'Kalnia Glaze';
+      color: #000;
+      background-color: #fff;
+      padding: 2% 4%;
+      border-radius: 1em;
+    }
+    #video {
+      transform: scaleX(-1);
+    }
+    body {
+      background-color: moccasin;
+    }
+    
+    #scan .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      width: 100%;
+    }
+    
+    #camera-container {
+      position: relative;
+      width: 100%;
+      max-width: 1500px;
+      margin: 40px auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+    #loading {
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+    #resultModal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgb(0, 0, 0);
+      background-color: rgba(0, 0, 0, 0.4);
+      padding-top: 60px;
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    
+    #video {
+      width: 100%;
+      border-radius: 1em;
+      cursor: pointer;
+    }
+    
+    .wrapper {
+      position: relative;
+    }
+    
+    .blue-frame {
+      position: absolute;
+      top: 3%; /* Adjust positioning from the top */
+      left: 15%; /* Adjust positioning from the left */
+      width: 70%; /* Make the frame smaller than the video */
+      height: 94%; /* Make the frame smaller than the video */
+      border: 5px solid red; /* Blue border for the frame */
+      border-radius: 1em; /* Optional rounded corners for the frame */
+      pointer-events: none; /* Ensures that the frame does not block interactions with the video */
+    }
+    .button-row {
+      position: absolute;
+      bottom: 10px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    .capture {
+      background-color: #fff;
+      border: none;
+      padding: 10px;
+      border-radius: 50%;
+      box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      font-size: 1.5em;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .capture i {
+      color: #000;
+    }
+    
+    #canvas {
+      display: none;
+    }
+    
+    #result-container {
+      margin-top: 20px;
+      text-align: center;
+      font-family: 'Kalnia Glaze';
+      color: #fff;
+    }
+    
+    /* Loading GIF Styles */
+    #loading {
+      display: none;
+      position: fixed;
+      z-index: 2;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+    
+    /*Loading*/
+    #loading {
+      display: flex;
+      opacity: 0;
+      justify-content: center;
+      align-items: center;
+      width: 80px; /* Adjust as needed */
+      height: 80px; /* Adjust as needed */
+      background-color: white;
+      border-radius: 50%;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1000;
+    }
+    #loading .fa-spinner {
+      font-size: 48px; /* Adjust the size of the icon */
+      color: #ffd43b;
+      animation: spin 2s linear infinite; /* Add spinning animation */
+    }
+    
+    @keyframes spin {
+      0% {boundary
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+    
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.4);
+      padding-top: 60px;
+    }
+    
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      border-radius: 10px;
+    }
+    
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+    
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    th,
+    td {
+      padding: 12px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+  <head>
+    <title>KVIS !</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+  </head>
+  <body>
+    <header class="topic">KVIS OPEN HOUSE 2024</header>
+    <section class="two" id="scan">
+      <div class="container">
+        <div class="camera-row">
+          <div id="camera-container">
+            <div class="wrapper">
+              <video id="video" autoplay></video>
+              <div class="blue-frame"></div>
+            </div>
+            <canvas id="canvas"></canvas>
+            <div class="button-row">
+              <button id="capture-button" class="capture"><i class="fa-solid fa-camera"></i></button>
+            </div>
+          </div>
+        </div>
+        <div id="result-container"></div>
+      </div>
+    </section>
+
+    <!-- Loading GIF -->
+    <div id="loading">
+      <!-- <img src="loading.gif" alt="Loading..." width="50" height="50"> -->
+      <i class="fa-solid fa-spinner" style="color: #FFD43B;"></i>
+    </div>
+
+    <!-- Modal -->
+    <div id="resultModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Detected Subjects</h2>
+        <table id="resultTable">
+          <thead>
+            <tr>
+              <th>Color</th>
+              <th>Subjects</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const captureButton = document.getElementById('capture-button');
+        const context = canvas.getContext('2d');
+        const modal = document.getElementById('resultModal');
+        const span = document.getElementsByClassName('close')[0];
+        const resultTable = document.getElementById('resultTable').getElementsByTagName('tbody')[0];
+        const loading = document.getElementById('loading');
+    
+        navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1920 }, height: { ideal: 1080 } } })
+            .then(stream => {
+                video.srcObject = stream;
+                video.onloadedmetadata = () => {
+                    // Set canvas dimensions to match video dimensions
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                };
+            })
+            .catch(err => {
+                console.error('Error accessing camera:', err);
+            });
+    
+        function capturePhoto() {
+            // Ensure canvas dimensions match video dimensions
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+            canvas.toBlob(function(blob) {
+                const formData = new FormData();
+                formData.append('file', blob, 'photo.jpg');
+    
+                loading.style.opacity = '1';
+    
+                fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                    displayData(data);
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                })
+                .finally(() => {
+                    loading.style.opacity = '0';
+                    resultModal.style.display = "block";
+                });
+            }, 'image/jpeg');
+        }
+    
+        captureButton.addEventListener('click', capturePhoto);
+    
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+    
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    
+        function displayData(data) {
+            // Clear the existing content in the table
+            resultTable.innerHTML = '';
+    
+            // Iterate through each item in the data
+            data.forEach(item => {
+                // Extract color and subjects from each item
+                const color = item[0];
+                const subjects = item[1];
+    
+                // Create a new row in the table
+                const row = resultTable.insertRow();
+                const colorCell = row.insertCell(0);
+                const subjectCell = row.insertCell(1);
+    
+                // Populate the cells with color and subjects
+                colorCell.textContent = color;
+                subjectCell.textContent = `${subjects[0]} - ${subjects[1]}`;
+            });
+    
+            // Display the modal with the results
+            modal.style.display = "block";
+        }
+    </script>
+  </body>
+</html>
