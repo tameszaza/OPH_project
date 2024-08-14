@@ -265,7 +265,7 @@ def preprocess(image_path):
     # Crop and save the top sections
     for i, crop_width in enumerate(crop_widths):
         crop_box = img_cropped[0:crop_height, previous_width:crop_width]
-        cropped_image_path = os.path.join(save_dir, f'partialPicSave_{i}_{last['count']}.jpg')
+        cropped_image_path = os.path.join(save_dir, f"partialPicSave_{i}_{last['count']}.jpg")
         cv2.imwrite(cropped_image_path, crop_box)
         cropped_images.append((cropped_image_path, crop_box))  # Save tuple of path and image to the list
         print(f"Cropped image section {i} saved at {cropped_image_path}")
@@ -276,7 +276,7 @@ def preprocess(image_path):
     # Crop and save the bottom sections
     for i, crop_width in enumerate(crop_widths):
         crop_box = img_cropped[crop_height:height, previous_width:crop_width]
-        cropped_image_path = os.path.join(save_dir, f'partialPicSave_{i+6}_{last['count']}.jpg')
+        cropped_image_path = os.path.join(save_dir, f"partialPicSave_{i+6}_{last['count']}.jpg")
         cv2.imwrite(cropped_image_path, crop_box)
         cropped_images.append((cropped_image_path, crop_box))  # Save tuple of path and image to the list
         print(f"Cropped image section {i+6} saved at {cropped_image_path}")
