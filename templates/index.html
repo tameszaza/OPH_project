@@ -340,29 +340,6 @@
         }
     
         function displayData(data) {
-            // Clear the existing content in the table
-            resultTable.innerHTML = '';
-    
-            // Iterate through each item in the data
-            data.forEach(item => {
-                // Extract color and subjects from each item
-                const color = item[0];
-                const subjects = item[1];
-    
-                // Create a new row in the table
-                const row = resultTable.insertRow();
-                const colorCell = row.insertCell(0);
-                const subjectCell = row.insertCell(1);
-    
-                // Populate the cells with color and subjects
-                colorCell.textContent = color;
-                subjectCell.textContent = `${subjects[0]} - ${subjects[1]}`;
-            });
-    
-            // Display the modal with the results
-            modal.style.display = "block";
-        }
-        function displayData(data) {
           const resultTable = document.getElementById('resultTable').getElementsByTagName('tbody')[0];
           const colorSubjects = {
               'Pink': [],
