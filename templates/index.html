@@ -329,11 +329,10 @@
       }
     
       function displayData(data) {
-        const resultContainer = document.getElementById('result-container');
-        resultContainer.innerHTML = '';  // Clear existing content
+        const resultTableBody = document.getElementById('resultTable').getElementsByTagName('tbody')[0];
+        resultTableBody.innerHTML = '';  // Clear existing content
     
         // Creating a color-coded table structure
-        const table = document.createElement('table');
         const colors = {
             'Blue': '#1E90FF',
             'Pink': '#FF69B4',
@@ -346,7 +345,7 @@
             const filteredSubjects = data.subject_list.filter(item => item[0] === color);
             
             // Always create a row for the color
-            const colorRow = table.insertRow();
+            const colorRow = resultTableBody.insertRow();
             const colorCell = colorRow.insertCell(0);
             colorCell.colSpan = 2;
             colorCell.style.backgroundColor = colors[color];
@@ -357,14 +356,14 @@
             // Add subjects under the color or indicate no subjects found
             if (filteredSubjects.length > 0) {
                 filteredSubjects.forEach(subject => {
-                    const row = table.insertRow();
+                    const row = resultTableBody.insertRow();
                     const codeCell = row.insertCell(0);
                     const nameCell = row.insertCell(1);
                     codeCell.textContent = subject[1][0];
                     nameCell.textContent = subject[1][1];
                 });
             } else {
-                const noSubjectsRow = table.insertRow();
+                const noSubjectsRow = resultTableBody.insertRow();
                 const noSubjectsCell = noSubjectsRow.insertCell(0);
                 noSubjectsCell.colSpan = 2;
                 noSubjectsCell.textContent = 'No subjects found for this color.';
@@ -372,7 +371,7 @@
         });
     
         // Append validity and reasons at the bottom
-        const validityRow = table.insertRow();
+        const validityRow = resultTableBody.insertRow();
         const validityCell = validityRow.insertCell(0);
         validityCell.colSpan = 2;
         validityCell.style.fontWeight = 'bold';
@@ -380,13 +379,14 @@
         validityCell.textContent = data.validity ? 'Valid' : 'Invalid';
     
         if (data.reasons) {
-            const reasonsRow = table.insertRow();
+            const reasonsRow = resultTableBody.insertRow();
             const reasonsCell = reasonsRow.insertCell(0);
             reasonsCell.colSpan = 2;
             reasonsCell.textContent = `Reasons: ${data.reasons.join(', ')}`;
         }
     
-        resultContainer.appendChild(table);
+        // Display the modal with the results
+        modal.style.display = "block";
     }
     
     </script>
