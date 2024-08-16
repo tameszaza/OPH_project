@@ -404,7 +404,10 @@ def EditData(df, list, is_valid, reasons):
     print("Original DataFrame:", df)
     print("New row DataFrame:", df3)
     df3['is_valid'] = is_valid
-    df3['reasons'] = reasons
+    if len(reasons) == 0:
+        df3['reasons'] = None  # Or any placeholder you prefer
+    else:
+        df3['reasons'] = [', '.join(reasons)] * len(df3)
     df3['timestamp'] = time.strftime("%Y%m%d-%H%M%S")
     df3['count'] = int(last['count']) + 1
     df3['hostname'] = [hostname]

@@ -14,7 +14,7 @@
       border-radius: 1em;
     }
     #video {
-      transform: scaleX(1);
+      transform: scaleX(-1);
     }
     body {
       background-color: moccasin;
@@ -337,7 +337,7 @@
             }
         }
     
-        function displayData(data) {
+        /*function displayData(data) {
             // Clear the existing content in the table
             resultTable.innerHTML = '';
     
@@ -359,7 +359,44 @@
     
             // Display the modal with the results
             modal.style.display = "block";
-        }
+        }*/
+        function displayData(data) {
+          // Clear the existing content in the table
+          resultTable.innerHTML = '';
+      
+          // Create the first row with headers
+          const headerRow = resultTable.insertRow();
+          ['Pink', 'Blue', 'Orange', 'Brown'].forEach(color => {
+              const headerCell = headerRow.insertCell(-1);
+              headerCell.textContent = color;
+          });
+      
+          // Create an object to hold the rows of subjects for each color
+          const rows = { Pink: [], Blue: [], Orange: [], Brown: [] };
+      
+          // Populate the rows with subjects based on their color
+          data.forEach(([color, subjectPair]) => {
+              const [subjectCode, subjectName] = subjectPair;
+              rows[color].push(`${subjectCode}: ${subjectName}`);
+          });
+      
+          // Determine the maximum number of rows needed
+          const maxRows = Math.max(rows.Pink.length, rows.Blue.length, rows.Orange.length, rows.Brown.length);
+      
+          // Create the table rows
+          for (let i = 0; i < maxRows; i++) {
+              const row = resultTable.insertRow();
+              ['Pink', 'Blue', 'Orange', 'Brown'].forEach(color => {
+                  const cell = row.insertCell(-1);
+                  cell.textContent = rows[color][i] || '-';
+              });
+          }
+      
+          // Display the modal with the results
+          modal.style.display = "block";
+      }
+      
+      
     </script>
   </body>
 </html>
