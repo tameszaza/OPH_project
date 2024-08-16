@@ -21,6 +21,17 @@ app = Flask(__name__)
 
 index_table = (0,9,17, 25, 36, 46, 56, 67, 75, 90, 95, 103)
 
+class data:
+    def __init__(self, stem_count, foreign_count, total, blue_count, pink_count, brown_count, orange_count, subject_list):
+        self.stem_count = stem_count
+        self.foreign_count = foreign_count
+        self.total = total
+        self.blue_count = blue_count
+        self.pink_count = pink_count
+        self.brown_count = brown_count
+        self.orange_count = orange_count
+        self.subject_list = subject_list
+        
 subjects = (
     ("ค30203", "หลักคณิตศาสตร์"),
     ("ค30204", "สถิติ"),
@@ -160,65 +171,64 @@ def index():
 def test_route():
     return jsonify({'message': 'Test route reached'}), 200
 
+
+def validate_output(output):
+    reasons = []
+    is_valid = True
+    
+    if output.stem_count < 8:
+        is_valid = False
+        reasons.append('Stem count is less than 8.')
+    
+    if output.foreign_count != 2:
+        is_valid = False
+        reasons.append('Foreign count is not equal to 2.')
+    
+    if output.total < 14:
+        is_valid = False
+        reasons.append('Total count is less than 14.')
+    
+    if any([output.blue_count > 4, output.pink_count > 4, output.brown_count > 4, output.orange_count > 4]):
+        is_valid = False
+        reasons.append('One or more color counts are greater than 4.')
+    
+    return is_valid, reasons
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
         print('No file part')
-        return jsonify({'error': 'No file part'})
+        return jsonify({'error': 'No file part'}), 400
+    
     file = request.files['file']
+    
     if file.filename == '':
         print('No selected file')
-        return jsonify({'error': 'No selected file'})
+        return jsonify({'error': 'No selected file'}), 400
+    
     if file:
         timestamp = time.strftime("%Y%m%d-%H%M%S")
         unique_filename = timestamp + os.path.splitext(file.filename)[1]
         filepath = os.path.join(UPLOAD_FOLDER, unique_filename)
         file.save(filepath)
-        subject_list = process_image(filepath)
-        print(subject_list)
-        return jsonify(subject_list)
+        
+        # Assuming process_image returns an instance of Data
+        output = process_image(filepath)
+        is_valid, reasons = validate_output(output)
+        
+        response = {
+            'validity': is_valid,
+            'reasons': reasons if not is_valid else None,
+            'subject_list': output.subject_list
+        }
+        Export_Data_To_Sheets(output.subject_list, is_valid, reasons)
+        print(response)
+        return jsonify(response)
+
     
     
     
-#-------------------------------------------------------------------------------------
-# I might use this part later please scroll down
 
-
-
-# @app.route('/delete_all', methods=['POST'])
-# def delete_all_files():
-#     folder = request.json.get('folder')
-#     if not folder:
-#         return jsonify({'error': 'No folder specified'}), 400
-    
-#     if folder == 'uploads':
-#         folder_path = UPLOAD_FOLDER
-#     elif folder == 'processed':
-#         folder_path = PROCESSED_FOLDER
-#     else:
-#         return jsonify({'error': 'Invalid folder specified'}), 400
-
-#     for filename in os.listdir(folder_path):
-#         file_path = os.path.join(folder_path, filename)
-#         try:
-#             if os.path.isfile(file_path) or os.path.islink(file_path):
-#                 os.unlink(file_path)
-#             elif os.path.isdir(file_path):
-#                 shutil.rmtree(file_path)
-#         except Exception as e:
-#             return jsonify({'error': f'Failed to delete {file_path}. Reason: {e}'}), 500
-    
-#     return jsonify({'message': 'All files deleted successfully'}), 200
-
-# @app.route('/detections', methods=['GET'])
-# def get_detections():
-#     print(f'Detected items to send: {detected_class}')  # Debug output
-#     return jsonify(list(detected_class))
-
-# @app.route('/processed/<filename>')
-# def serve_processed_file(filename):
-#     return send_from_directory(PROCESSED_FOLDER, filename)
-#-------------------------------------------------------------------------------------
 
 
 def preprocess(image_path):
@@ -285,49 +295,18 @@ def preprocess(image_path):
 
     return cropped_images  # Return the list of cropped images
 
-#since the real preprocessing isnot  complete so 
-
-# def preprocess(folder_path): # we bypass the preprocessing
-#     img_list = []
-#     for filename in os.listdir(folder_path):
-#         if filename.endswith('.jpg') or filename.endswith('.png'):  # Add other image formats if needed
-#             img_path = os.path.join(folder_path, filename)
-#             img = cv2.imread(img_path)
-#             if img is not None:
-#                 img_list.append((filename, img))
-#                 print(filename)
-#             else:
-#                 print(f"Warning: {filename} could not be read.")
-#     return img_list
 
 
-def annotate_image(img, detections, code_boxes, sticker_boxes, subject_list, filename):
-    for bbox, score, color in sticker_boxes:
-        x1, y1, x2, y2 = [int(coord) for coord in bbox]
-        cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
-        cv2.putText(img, f'{color} {score:.2f}', (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-
-    for bbox, score in code_boxes:
-        x1, y1, x2, y2 = [int(coord) for coord in bbox]
-        cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 0), 2)
-        cv2.putText(img, f'Code {score:.2f}', (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
-
-    for subject in subject_list:
-        color, (code, name) = subject
-        cv2.putText(img, f'{color} {code} {name}', (10, 30 * (subject_list.index(subject) + 1)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
-
-    output_path = os.path.join(PROCESSED_FOLDER, filename)
-    cv2.imwrite(output_path, img)
-    print(f"Annotated image saved to {output_path}")
 
 def process_image(image_path): #main pipe line function
     img_list = preprocess(image_path)
     subject_list = []
+    output = data(0, 0, 0, 0, 0, 0, 0 , [])
     for i, (filename, element) in enumerate(img_list):
-        subject_list = get_selected_choices(i, element, subject_list, filename)
-    print(subject_list)
-    Export_Data_To_Sheets(subject_list)
-    return subject_list
+        output = get_selected_choices(i, element, output, filename)
+   
+    
+    return output
 
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
@@ -372,7 +351,7 @@ def SheetData():
     
     return df
 
-def EditData(df, list):
+def EditData(df, list, is_valid, reasons):
     color_map = {
         "Pink": 3,
         "Blue": 4,
@@ -424,6 +403,8 @@ def EditData(df, list):
     # Debugging information
     print("Original DataFrame:", df)
     print("New row DataFrame:", df3)
+    df3['is_valid'] = is_valid
+    df3['reasons'] = reasons
     df3['timestamp'] = time.strftime("%Y%m%d-%H%M%S")
     df3['count'] = int(last['count']) + 1
     df3['hostname'] = [hostname]
@@ -439,12 +420,12 @@ def EditData(df, list):
     
     return df2
 
-def Export_Data_To_Sheets(sbj_ls):
+def Export_Data_To_Sheets(sbj_ls, is_valid, reasons):
     df = SheetData()
     if df is None:
         print("DataFrame not created. Exiting.")
         return
-    df2 = EditData(df, sbj_ls)
+    df2 = EditData(df, sbj_ls, is_valid, reasons)
     response_date = service.spreadsheets().values().update(
         spreadsheetId=SAMPLE_SPREADSHEET_ID_input,
         valueInputOption='RAW',
@@ -456,17 +437,29 @@ def Export_Data_To_Sheets(sbj_ls):
     print('Sheet successfully Updated')
 
 
-def get_selected_choices(i, img, subject_list, filename):
-    # img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+def iou(box1, box2):
+    # Calculate the intersection area
+    xA = max(box1[0], box2[0])
+    yA = max(box1[1], box2[1])
+    xB = min(box1[2], box2[2])
+    yB = min(box1[3], box2[3])
+
+    interArea = max(0, xB - xA + 1) * max(0, yB - yA + 1)
+
+    # Calculate the area of both the prediction and ground-truth rectangles
+    box1Area = (box1[2] - box1[0] + 1) * (box1[3] - box1[1] + 1)
+    box2Area = (box2[2] - box2[0] + 1) * (box2[3] - box2[1] + 1)
+
+    # Calculate the intersection over union
+    iou = interArea / float(box1Area + box2Area - interArea)
+
+    return iou
+
+def get_selected_choices(i, img,output:data , filename):
     img_rgb = img
-    # Load your trained model
     model = YOLO('best6.pt')
-
-    # Run the detection
     results = model(img_rgb)
-
-    # Parse results (handling it as a list)
-    detections = results[0].boxes  # Assuming the first item in results contains our detections
+    detections = results[0].boxes
 
     code_boxes = []
     sticker_boxes = []
@@ -474,7 +467,6 @@ def get_selected_choices(i, img, subject_list, filename):
     img_area = img.shape[0] * img.shape[1]
     max_area = 0.05 * img_area
 
-    # Process each detection
     for det in detections:
         x1, y1, x2, y2 = det.xyxy[0].cpu().numpy()
         score = det.conf.item()
@@ -483,7 +475,6 @@ def get_selected_choices(i, img, subject_list, filename):
         bbox = [x1, y1, x2, y2]
         bbox_area = (x2 - x1) * (y2 - y1)
 
-        # Assign class names and categorize detections
         if class_id == 4:  # Code
             if bbox_area <= max_area:
                 code_boxes.append((bbox, score))
@@ -493,15 +484,29 @@ def get_selected_choices(i, img, subject_list, filename):
             class_names = ['Pink', 'Brown', 'Blue', 'Orange']
             if class_id in range(len(class_names)):
                 sticker_boxes.append((bbox, score, class_names[class_id]))
-    print(sticker_boxes)
 
-    # Match stickers to the nearest code box
+    # Filter out overlapping stickers
+    filtered_sticker_boxes = []
+    for ii, (box1, score1, color1) in enumerate(sticker_boxes):
+        keep = True
+        for j, (box2, score2, color2) in enumerate(sticker_boxes):
+            if ii != j :
+                if iou(box1, box2) > 0.65:
+                    if score1 < score2:
+                        keep = False
+                        print('drop color')
+                        print(color1)
+                        break
+        if keep:
+            filtered_sticker_boxes.append((box1, score1, color1))
+    
+    sticker_boxes = filtered_sticker_boxes
+
     for sticker_bbox, _, color in sticker_boxes:
         nearest_box = None
         min_distance = float('inf')
 
         for code_bbox, _ in code_boxes:
-            # Calculate distance between the centers of the sticker and code box
             distance = np.linalg.norm(np.array([
                 (sticker_bbox[0] + sticker_bbox[2]) / 2 - (code_bbox[0] + code_bbox[2]) / 2,
                 (sticker_bbox[1] + sticker_bbox[3]) / 2 - (code_bbox[1] + code_bbox[3]) / 2
@@ -511,21 +516,43 @@ def get_selected_choices(i, img, subject_list, filename):
                 min_distance = distance
                 nearest_box = code_bbox
 
-        # Determine the order of the code box selected by the sticker
-        sorted_codes = sorted(code_boxes, key=lambda x: x[0][1])  # Sort by vertical position
+        sorted_codes = sorted(code_boxes, key=lambda x: x[0][1])
 
-        # Check if the nearest_box is in sorted_codes
         if nearest_box in [code[0] for code in sorted_codes]:
-            order = [code[0] for code in sorted_codes].index(nearest_box) + 1  # Get order based on sorted position
-            print(order)
-            subject_list.append([color, subjects[index_table[i] + order - 1]])
-
-    # Annotate image for debugging
-    annotate_image(img, detections, code_boxes, sticker_boxes, subject_list, filename)
+            order = [code[0] for code in sorted_codes].index(nearest_box) + 1
+            output.subject_list.append([color, subjects[index_table[i] + order - 1]])
+            output.total +=1
+            
+            if color == 'Blue':
+                output.blue_count +=1
+            elif color == 'Brown':
+                output.brown_count +=1
+            elif color == 'Orange':
+                output.orange_count +=1
+            else :
+                output.pink_count +=1
+            if i<=6:
+                output.stem_count+=1
+            elif i>9:
+                output.foreign_count+=1
     
-    return subject_list
+    print('this is the output')
+    print(output.blue_count)
+    print(output.brown_count)
+    print(output.orange_count)
+    print(output.pink_count)
+    print(output.foreign_count)
+    print(output.total)
+    print(output.subject_list)
+    print(output.stem_count)
+    print(i)
+    print('end output')
+            
+            
+            
 
-
+    
+    return output
 
 if __name__ == '__main__':
     app.run()
