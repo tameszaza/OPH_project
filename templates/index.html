@@ -264,9 +264,11 @@
         <table id="resultTable">
           <thead>
             <tr>
-              <th>Color</th>
-              <th>Subjects</th>
-            </tr>
+              <th>Pink</th>
+              <th>Blue</th>
+              <th>Orange</th>
+              <th>Brown</th>
+          </tr>
           </thead>
           <tbody></tbody>
         </table>
@@ -360,6 +362,42 @@
             // Display the modal with the results
             modal.style.display = "block";
         }
+        function displayData(data) {
+          const resultTable = document.getElementById('resultTable').getElementsByTagName('tbody')[0];
+          const colorSubjects = {
+              'Pink': [],
+              'Blue': [],
+              'Orange': [],
+              'Brown': []
+          };
+
+          data.forEach(item => {
+              const color = item[0];
+              const subjects = item[1];
+              if (colorSubjects[color]) {
+                  colorSubjects[color].push(`${subjects[0]} - ${subjects[1]}`);
+              }
+          });
+
+          const maxRows = Math.max(
+              colorSubjects['Pink'].length,
+              colorSubjects['Blue'].length,
+              colorSubjects['Orange'].length,
+              colorSubjects['Brown'].length
+          );
+
+          for (let i = 0; i < maxRows; i++) {
+              const row = resultTable.insertRow();
+              row.insertCell(0).textContent = colorSubjects['Pink'][i] || '';
+              row.insertCell(1).textContent = colorSubjects['Blue'][i] || '';
+              row.insertCell(2).textContent = colorSubjects['Orange'][i] || '';
+              row.insertCell(3).textContent = colorSubjects['Brown'][i] || '';
+          }
+
+          modal.style.display = "block";
+      }
+
+      
     </script>
   </body>
 </html>
