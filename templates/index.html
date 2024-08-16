@@ -14,7 +14,7 @@
       border-radius: 1em;
     }
     #video {
-      transform: scaleX(1);
+      transform: scaleX(-1);
     }
     body {
       background-color: moccasin;
@@ -224,8 +224,7 @@
     
     th {
       background-color: #f2f2f2;
-    }
-  </style>
+    }</style>
   <head>
     <title>KVIS !</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
@@ -252,7 +251,6 @@
 
     <!-- Loading GIF -->
     <div id="loading">
-      <!-- <img src="loading.gif" alt="Loading..." width="50" height="50"> -->
       <i class="fa-solid fa-spinner" style="color: #FFD43B;"></i>
     </div>
 
@@ -264,11 +262,9 @@
         <table id="resultTable">
           <thead>
             <tr>
-              <th>Pink</th>
-              <th>Blue</th>
-              <th>Orange</th>
-              <th>Brown</th>
-          </tr>
+              <th>Color</th>
+              <th>Subjects</th>
+            </tr>
           </thead>
           <tbody></tbody>
         </table>
@@ -276,106 +272,123 @@
     </div>
 
     <script>
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        const captureButton = document.getElementById('capture-button');
-        const context = canvas.getContext('2d');
-        const modal = document.getElementById('resultModal');
-        const span = document.getElementsByClassName('close')[0];
-        const resultTable = document.getElementById('resultTable').getElementsByTagName('tbody')[0];
-        const loading = document.getElementById('loading');
+      const video = document.getElementById('video');
+      const canvas = document.getElementById('canvas');
+      const captureButton = document.getElementById('capture-button');
+      const context = canvas.getContext('2d');
+      const modal = document.getElementById('resultModal');
+      const span = document.getElementsByClassName('close')[0];
+      const resultTable = document.getElementById('resultTable').getElementsByTagName('tbody')[0];
+      const loading = document.getElementById('loading');
     
-        navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1920 }, height: { ideal: 1080 } } })
-            .then(stream => {
-                video.srcObject = stream;
-                video.onloadedmetadata = () => {
-                    // Set canvas dimensions to match video dimensions
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                };
-            })
-            .catch(err => {
-                console.error('Error accessing camera:', err);
-            });
+      navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1920 }, height: { ideal: 1080 } } })
+          .then(stream => {
+              video.srcObject = stream;
+              video.onloadedmetadata = () => {
+                  canvas.width = video.videoWidth;
+                  canvas.height = video.videoHeight;
+              };
+          })
+          .catch(err => console.error('Error accessing camera:', err));
     
-        function capturePhoto() {
-            // Ensure canvas dimensions match video dimensions
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      function capturePhoto() {
+          context.drawImage(video, 0, 0, canvas.width, canvas.height);
     
-            canvas.toBlob(function(blob) {
-                const formData = new FormData();
-                formData.append('file', blob, 'photo.jpg');
+          canvas.toBlob(function(blob) {
+              const formData = new FormData();
+              formData.append('file', blob, 'photo.jpg');
+              loading.style.opacity = '1';
     
-                loading.style.opacity = '1';
-    
-                fetch('/upload', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Success:', data);
-                    displayData(data);
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                })
-                .finally(() => {
-                    loading.style.opacity = '0';
-                    resultModal.style.display = "block";
-                });
-            }, 'image/jpeg');
-        }
-    
-        captureButton.addEventListener('click', capturePhoto);
-    
-        span.onclick = function() {
-            modal.style.display = "none";
-        }
-    
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        }
-    
-        
-        function displayData(data) {
-          const resultTable = document.getElementById('resultTable').getElementsByTagName('tbody')[0];
-          const colorSubjects = {
-              'Pink': [],
-              'Blue': [],
-              'Orange': [],
-              'Brown': []
-          };
-
-          data.forEach(item => {
-              const color = item[0];
-              const subjects = item[1];
-              if (colorSubjects[color]) {
-                  colorSubjects[color].push(`${subjects[0]} - ${subjects[1]}`);
-              }
-          });
-
-          const maxRows = Math.max(
-              colorSubjects['Pink'].length,
-              colorSubjects['Blue'].length,
-              colorSubjects['Orange'].length,
-              colorSubjects['Brown'].length
-          );
-
-          for (let i = 0; i < maxRows; i++) {
-              const row = resultTable.insertRow();
-              row.insertCell(0).textContent = colorSubjects['Pink'][i] || '';
-              row.insertCell(1).textContent = colorSubjects['Blue'][i] || '';
-              row.insertCell(2).textContent = colorSubjects['Orange'][i] || '';
-              row.insertCell(3).textContent = colorSubjects['Brown'][i] || '';
-          }
-
-          modal.style.display = "block";
+              fetch('/upload', {
+                  method: 'POST',
+                  body: formData
+              })
+              .then(response => response.json())
+              .then(data => {
+                  console.log('Success:', data);
+                  displayData(data);
+              })
+              .catch((error) => console.error('Error:', error))
+              .finally(() => {
+                  loading.style.opacity = '0';
+                  modal.style.display = "block";
+              });
+          }, 'image/jpeg');
       }
-
-      
+    
+      captureButton.addEventListener('click', capturePhoto);
+    
+      span.onclick = function() {
+          modal.style.display = "none";
+      }
+    
+      window.onclick = function(event) {
+          if (event.target == modal) {
+              modal.style.display = "none";
+          }
+      }
+    
+      function displayData(data) {
+        const resultContainer = document.getElementById('result-container');
+        resultContainer.innerHTML = '';  // Clear existing content
+    
+        // Creating a color-coded table structure
+        const table = document.createElement('table');
+        const colors = {
+            'Blue': '#1E90FF',
+            'Pink': '#FF69B4',
+            'Brown': '#8B4513',
+            'Orange': '#FFA500'
+        };
+        
+        Object.keys(colors).forEach(color => {
+            // Filter subjects by color
+            const filteredSubjects = data.subject_list.filter(item => item[0] === color);
+            
+            // Always create a row for the color
+            const colorRow = table.insertRow();
+            const colorCell = colorRow.insertCell(0);
+            colorCell.colSpan = 2;
+            colorCell.style.backgroundColor = colors[color];
+            colorCell.style.color = '#fff';
+            colorCell.style.fontWeight = 'bold';
+            colorCell.textContent = `${color} (${filteredSubjects.length})`;
+    
+            // Add subjects under the color or indicate no subjects found
+            if (filteredSubjects.length > 0) {
+                filteredSubjects.forEach(subject => {
+                    const row = table.insertRow();
+                    const codeCell = row.insertCell(0);
+                    const nameCell = row.insertCell(1);
+                    codeCell.textContent = subject[1][0];
+                    nameCell.textContent = subject[1][1];
+                });
+            } else {
+                const noSubjectsRow = table.insertRow();
+                const noSubjectsCell = noSubjectsRow.insertCell(0);
+                noSubjectsCell.colSpan = 2;
+                noSubjectsCell.textContent = 'No subjects found for this color.';
+            }
+        });
+    
+        // Append validity and reasons at the bottom
+        const validityRow = table.insertRow();
+        const validityCell = validityRow.insertCell(0);
+        validityCell.colSpan = 2;
+        validityCell.style.fontWeight = 'bold';
+        validityCell.style.paddingTop = '20px';
+        validityCell.textContent = data.validity ? 'Valid' : 'Invalid';
+    
+        if (data.reasons) {
+            const reasonsRow = table.insertRow();
+            const reasonsCell = reasonsRow.insertCell(0);
+            reasonsCell.colSpan = 2;
+            reasonsCell.textContent = `Reasons: ${data.reasons.join(', ')}`;
+        }
+    
+        resultContainer.appendChild(table);
+    }
+    
     </script>
   </body>
 </html>

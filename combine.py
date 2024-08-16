@@ -228,7 +228,46 @@ def upload_file():
     
     
     
+   
+#-------------------------------------------------------------------------------------
+# I might use this part later please scroll down
 
+
+
+# @app.route('/delete_all', methods=['POST'])
+# def delete_all_files():
+#     folder = request.json.get('folder')
+#     if not folder:
+#         return jsonify({'error': 'No folder specified'}), 400
+    
+#     if folder == 'uploads':
+#         folder_path = UPLOAD_FOLDER
+#     elif folder == 'processed':
+#         folder_path = PROCESSED_FOLDER
+#     else:
+#         return jsonify({'error': 'Invalid folder specified'}), 400
+
+#     for filename in os.listdir(folder_path):
+#         file_path = os.path.join(folder_path, filename)
+#         try:
+#             if os.path.isfile(file_path) or os.path.islink(file_path):
+#                 os.unlink(file_path)
+#             elif os.path.isdir(file_path):
+#                 shutil.rmtree(file_path)
+#         except Exception as e:
+#             return jsonify({'error': f'Failed to delete {file_path}. Reason: {e}'}), 500
+    
+#     return jsonify({'message': 'All files deleted successfully'}), 200
+
+# @app.route('/detections', methods=['GET'])
+# def get_detections():
+#     print(f'Detected items to send: {detected_class}')  # Debug output
+#     return jsonify(list(detected_class))
+
+# @app.route('/processed/<filename>')
+# def serve_processed_file(filename):
+#     return send_from_directory(PROCESSED_FOLDER, filename)
+#-------------------------------------------------------------------------------------
 
 
 def preprocess(image_path):
@@ -438,6 +477,41 @@ def Export_Data_To_Sheets(sbj_ls, is_valid, reasons):
             values=df2.T.reset_index().T.values.tolist())
     ).execute()
     print('Sheet successfully Updated')
+
+#since the real preprocessing isnot  complete so 
+
+# def preprocess(folder_path): # we bypass the preprocessing
+#     img_list = []
+#     for filename in os.listdir(folder_path):
+#         if filename.endswith('.jpg') or filename.endswith('.png'):  # Add other image formats if needed
+#             img_path = os.path.join(folder_path, filename)
+#             img = cv2.imread(img_path)
+#             if img is not None:
+#                 img_list.append((filename, img))
+#                 print(filename)
+#             else:
+#                 print(f"Warning: {filename} could not be read.")
+#     return img_list
+
+
+def annotate_image(img, detections, code_boxes, sticker_boxes, subject_list, filename):
+    for bbox, score, color in sticker_boxes:
+        x1, y1, x2, y2 = [int(coord) for coord in bbox]
+        cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
+        cv2.putText(img, f'{color} {score:.2f}', (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+    for bbox, score in code_boxes:
+        x1, y1, x2, y2 = [int(coord) for coord in bbox]
+        cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 0), 2)
+        cv2.putText(img, f'Code {score:.2f}', (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
+
+    for subject in subject_list:
+        color, (code, name) = subject
+        cv2.putText(img, f'{color} {code} {name}', (10, 30 * (subject_list.index(subject) + 1)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
+
+    output_path = os.path.join(PROCESSED_FOLDER, filename)
+    cv2.imwrite(output_path, img)
+    print(f"Annotated image saved to {output_path}")
 
 
 def iou(box1, box2):
