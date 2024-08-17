@@ -334,10 +334,10 @@
     
         // Creating a color-coded table structure
         const colors = {
-            'Blue': '#1E90FF',
             'Pink': '#FF69B4',
-            'Brown': '#8B4513',
-            'Orange': '#FFA500'
+            'Blue': '#1E90FF',
+            'Orange': '#FFA500',
+            'Brown': '#8B4513'
         };
         
         Object.keys(colors).forEach(color => {
@@ -370,25 +370,33 @@
             }
         });
     
-        // Append validity and reasons at the bottom
+        // Append validity status in large size
         const validityRow = resultTableBody.insertRow();
         const validityCell = validityRow.insertCell(0);
         validityCell.colSpan = 2;
         validityCell.style.fontWeight = 'bold';
         validityCell.style.paddingTop = '20px';
+        validityCell.style.fontSize = '4em';  // Large font size
+        validityCell.style.textAlign = 'center';
+        validityCell.style.color = data.validity ? 'green' : 'red';
         validityCell.textContent = data.validity ? 'Valid' : 'Invalid';
     
-        if (data.reasons) {
+        // Append reasons if the result is invalid
+        if (data.reasons && !data.validity) {
             const reasonsRow = resultTableBody.insertRow();
             const reasonsCell = reasonsRow.insertCell(0);
             reasonsCell.colSpan = 2;
+            reasonsCell.style.color = 'red';
+            reasonsCell.style.paddingTop = '10px';
+            reasonsCell.style.fontSize = '1.2em';  // Medium-large font size
+            reasonsCell.style.textAlign = 'center';
             reasonsCell.textContent = `Reasons: ${data.reasons.join(', ')}`;
         }
     
         // Display the modal with the results
         modal.style.display = "block";
     }
-    
+        
     </script>
   </body>
 </html>
