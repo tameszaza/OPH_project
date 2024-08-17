@@ -306,7 +306,7 @@ def preprocess(image_path):
 
     # Variables for cropping
     previous_width = 0
-    crop_height = int(height * (30 / 53))
+    crop_height = int(height * (28 / 53))
     df = pd.DataFrame()
     df = SheetData()
     last=df.iloc[-1]
