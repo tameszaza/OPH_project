@@ -4,3 +4,7 @@ OPH_project3 (Copy 2)
 OPH_project3 (Copy)
 uploads
 partialPicSave
+*.zip
+*.pt
+.venv
+best6.pt

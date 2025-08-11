@@ -1,0 +1,6 @@
+path: /media/tameszaza/MyPassport/ml/OPH_project/2025/datasets/paper_seg2
+train: images/train
+val: images/val
+
+names:
+  0: paper

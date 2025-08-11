@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Live Document Scanner</title>
+    <style>
+        body { text-align: center; background: #ccc; }
+        video { width: 60%; border: 2px solid black; margin-top: 20px; }
+        #captureBtn { margin-top: 20px; padding: 10px 20px; }
+        #resultModal {
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); text-align: center;
+        }
+        #resultModal img {
+            max-width: 80%; margin-top: 5%;
+            background: white; padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Live Document Scanner</h1>
+    <video id="video" autoplay></video><br>
+    <button id="captureBtn">Capture</button>
+
+    <div id="resultModal" onclick="this.style.display='none'">
+        <img id="resultImage" src="">
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const modal = document.getElementById('resultModal');
+        const resultImage = document.getElementById('resultImage');
+
+        // Start webcam
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => { video.srcObject = stream; })
+            .catch(err => alert("Camera access denied: " + err));
+
+        function captureImage() {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            const imgData = canvas.toDataURL('image/png');
+
+            fetch('/capture', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: imgData })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    alert("Error: " + data.error);
+                } else {
+                    resultImage.src = data.image;
+                    modal.style.display = 'block';
+                }
+            })
+            .catch(err => alert("Request failed: " + err));
+        }
+
+        document.getElementById('captureBtn').addEventListener('click', captureImage);
+
+        // Keyboard event for spacebar: capture or close modal
+        document.addEventListener('keydown', function(e) {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if (modal.style.display === 'block') {
+                    modal.style.display = 'none';
+                } else {
+                    captureImage();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

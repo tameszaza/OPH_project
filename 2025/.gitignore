@@ -1,0 +1,13 @@
+captured
+cropped
+processed
+
+seg_out
+results
+datasets
+runs_paper_seg
+tiles_out
+*.pem
+*.key
+*.zip
+*/*.pt

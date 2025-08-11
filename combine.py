@@ -224,45 +224,6 @@ def upload_file():
     
     
    
-#-------------------------------------------------------------------------------------
-# I might use this part later please scroll down
-
-
-
-# @app.route('/delete_all', methods=['POST'])
-# def delete_all_files():
-#     folder = request.json.get('folder')
-#     if not folder:
-#         return jsonify({'error': 'No folder specified'}), 400
-    
-#     if folder == 'uploads':
-#         folder_path = UPLOAD_FOLDER
-#     elif folder == 'processed':
-#         folder_path = PROCESSED_FOLDER
-#     else:
-#         return jsonify({'error': 'Invalid folder specified'}), 400
-
-#     for filename in os.listdir(folder_path):
-#         file_path = os.path.join(folder_path, filename)
-#         try:
-#             if os.path.isfile(file_path) or os.path.islink(file_path):
-#                 os.unlink(file_path)
-#             elif os.path.isdir(file_path):
-#                 shutil.rmtree(file_path)
-#         except Exception as e:
-#             return jsonify({'error': f'Failed to delete {file_path}. Reason: {e}'}), 500
-    
-#     return jsonify({'message': 'All files deleted successfully'}), 200
-
-# @app.route('/detections', methods=['GET'])
-# def get_detections():
-#     print(f'Detected items to send: {detected_class}')  # Debug output
-#     return jsonify(list(detected_class))
-
-# @app.route('/processed/<filename>')
-# def serve_processed_file(filename):
-#     return send_from_directory(PROCESSED_FOLDER, filename)
-#-------------------------------------------------------------------------------------
 
 
 def preprocess(image_path):
