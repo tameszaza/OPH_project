@@ -6,7 +6,7 @@ import shutil
 import cv2
 import numpy as np
 import uuid
-from pdf2image import convert_from_path
+# from pdf2image import convert_from_path
 from PIL import Image
 from ultralytics import YOLO
 import time

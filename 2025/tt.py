@@ -30,7 +30,7 @@ CONFIG = {
     "top_column_ratios": [0.03, 0.19, 0.34, 0.49, 0.64, 0.79, 0.95],
 
     # X ratios for BOTTOM band (7 values for 6 columns)
-    "bottom_column_ratios": [0.035, 0.185, 0.320, 0.485, 0.645, 0.795, 0.955],
+    "bottom_column_ratios": [0.035, 0.185, 0.320, 0.485, 0.645, 0.805, 0.985],
 
     # Optional nudges (in ratio units, applied to right edges)
     "top_column_nudge_ratio":    [0, 0, 0, 0, 0, 0],

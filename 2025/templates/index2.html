@@ -1,416 +1,829 @@
 <!DOCTYPE html>
 <html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>KVIS Scanner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Fonts and icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Kalnia+Glaze:wght@300;600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+  <!-- Confetti for celebrations -->
+  <script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Kalnia+Glaze:wght@100..700&display=swap');
-    
-    .topic {
-      text-shadow: 2px 2px 4px black;
-      text-align: center;
-      font-size: 3em;
-      font-family: 'Kalnia Glaze';
-      color: #000;
-      background-color: #fff;
-      padding: 2% 4%;
-      border-radius: 1em;
+    :root{
+      --bg:#0b1020;
+      --card:#121a33cc;
+      --muted:#64748b;
+      --ring:#60a5fa;
+      --ok:#16a34a;
+      --bad:#ef4444;
+      --chip:#1f2a4b;
+      --accent:#f59e0b;
+      --glass: blur(10px) saturate(110%);
     }
-    #video {
-      transform: scaleX(1);
+
+    *{box-sizing:border-box}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:#e5e7eb;
+      background:
+        radial-gradient(1200px 600px at 80% -10%, #33415533 0%, transparent 60%),
+        radial-gradient(900px 600px at -10% 90%, #1e293b66 10%, transparent 70%),
+        linear-gradient(180deg, #0a0f1f 0%, #0b1020 100%);
     }
-    body {
-      background-color: moccasin;
+
+    header.topic{
+      font-family: 'Kalnia Glaze', serif;
+      text-align:center;
+      font-size: clamp(28px, 4vw, 56px);
+      color:#fff;
+      padding:18px 20px;
+      margin:10px auto 6px;
+      width:min(1100px, 92vw);
+      border-radius:20px;
+      position:relative;
+      letter-spacing:.5px;
+      background: linear-gradient(135deg, #1f2937aa, #111827aa);
+      backdrop-filter: var(--glass);
+      box-shadow: 0 15px 40px #0007, inset 0 1px 0 #ffffff11;
     }
-    
-    #scan .container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      width: 100%;
+    header.topic small{
+      display:block;
+      font-family: Inter, sans-serif;
+      color:#a0aec0;
+      margin-top:4px;
+      font-size:.55em;
+      letter-spacing:.2px;
     }
-    
-    #camera-container {
-      position: relative;
-      width: 100%;
-      max-width: 1500px;
-      margin: 40px auto;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
+
+    .shell{
+      width:min(1200px, 95vw);
+      margin:14px auto 60px;
     }
-    #loading {
-      opacity: 0;
-      transition: opacity 0.5s;
+
+    .scanner-card{
+      background: linear-gradient(180deg, #0b1328ee, #0b1226ee);
+      border:1px solid #2a3355;
+      border-radius:22px;
+      padding:18px;
+      box-shadow: 0 20px 60px #0008, inset 0 1px 0 #ffffff0e;
     }
-    #resultModal {
-      display: none;
-      position: fixed;
-      z-index: 1;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgb(0, 0, 0);
-      background-color: rgba(0, 0, 0, 0.4);
-      padding-top: 60px;
+
+    .topbar{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:10px;
     }
-    .modal-content {
-      background-color: #fefefe;
-      margin: 5% auto;
-      padding: 20px;
-      border: 1px solid #888;
-      width: 80%;
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
     }
-    .close {
-      color: #aaa;
-      float: right;
-      font-size: 28px;
-      font-weight: bold;
+    .brand .dot{
+      width:10px;height:10px;border-radius:50%;
+      background: radial-gradient(circle at 30% 30%, #93c5fd, #3b82f6);
+      box-shadow:0 0 16px #60a5fa;
     }
-    .close:hover,
-    .close:focus {
-      color: black;
-      text-decoration: none;
-      cursor: pointer;
+    .brand h2{
+      margin:0;color:#cbd5e1;font-size:16px;font-weight:700;letter-spacing:.4px;
     }
-    
-    #video {
-      width: 100%;
-      border-radius: 1em;
-      cursor: pointer;
+    .actions{
+      display:flex; gap:8px; flex-wrap:wrap; align-items:center;
     }
-    
-    .wrapper {
-      position: relative;
+    button.kbtn{
+      appearance:none;
+      border:1px solid #32406c;
+      background: linear-gradient(180deg, #142046, #101936);
+      color:#e2e8f0;
+      padding:10px 12px;
+      border-radius:12px;
+      font-weight:600;
+      font-size:14px;
+      cursor:pointer;
+      display:inline-flex; gap:8px; align-items:center;
+      transition:transform .06s ease, border-color .2s, box-shadow .2s;
     }
-    
-    .blue-frame {
-      position: absolute;
-      top: 3%; /* Adjust positioning from the top */
-      left: 15%; /* Adjust positioning from the left */
-      width: 70%; /* Make the frame smaller than the video */
-      height: 94%; /* Make the frame smaller than the video */
-      border: 5px solid red; /* Blue border for the frame */
-      border-radius: 1em; /* Optional rounded corners for the frame */
-      pointer-events: none; /* Ensures that the frame does not block interactions with the video */
+    button.kbtn:hover{ border-color:#4663a6; box-shadow:0 0 0 3px #3b82f622;}
+    button.kbtn:active{ transform:translateY(1px); }
+    button.kbtn.primary{ background:linear-gradient(180deg, #1f3b7a, #172b55); border-color:#3c5aa6;}
+    button.kbtn.ghost{ background:transparent; border-color:#27335a;}
+    button.kbtn.ok{ background:linear-gradient(180deg, #1c5432, #143a24); border-color:#2f855a;}
+    button.kbtn.bad{ background:linear-gradient(180deg, #5a1f1f, #3a1414); border-color:#b91c1c;}
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:18px;
     }
-    .button-row {
-      position: absolute;
-      bottom: 10px;
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      gap: 10px;
+    @media(max-width: 980px){ .grid{ grid-template-columns: 1fr; } }
+
+    /* Camera panel */
+    .camera-wrap{
+      position:relative;
+      border-radius:18px;
+      overflow:hidden;
+      border:1px solid #2a3355;
+      background:#0a1025;
     }
-    
-    .capture {
-      background-color: #fff;
-      border: none;
-      padding: 10px;
-      border-radius: 50%;
-      box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-      cursor: pointer;
-      font-size: 1.5em;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+
+    .video-stage{
+      position:relative;
+      aspect-ratio: 16 / 9;
+      background: #0a1025;
+      display:flex; align-items:center; justify-content:center;
     }
-    
-    .capture i {
-      color: #000;
+    video#video{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      background:#0a1025;
+      transition: transform .2s ease;
     }
-    
-    #canvas {
-      display: none;
+    .mirrored video#video{ transform: scaleX(-1); }
+
+    /* Animated scan frame with corners and sweep line */
+    .frame{
+      position:absolute; inset:3% 12%;
+      border-radius:18px;
+      pointer-events:none;
     }
-    
-    #result-container {
-      margin-top: 20px;
-      text-align: center;
-      font-family: 'Kalnia Glaze';
-      color: #fff;
+    .frame::before, .frame::after{
+      content:""; position:absolute; inset:0; border-radius:inherit;
     }
-    
-    /* Loading GIF Styles */
-    #loading {
-      display: none;
-      position: fixed;
-      z-index: 2;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
+    .frame::before{
+      border:2px solid transparent;
+      background:
+          linear-gradient(#0000,#0000) padding-box,
+          conic-gradient(from 0deg, #60a5fa, #22d3ee, #a78bfa, #60a5fa) border-box;
+      -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor; mask-composite: exclude;
+      animation: hue 6s linear infinite;
     }
-    
-    /*Loading*/
-    #loading {
-      display: flex;
-      opacity: 0;
-      justify-content: center;
-      align-items: center;
-      width: 80px; /* Adjust as needed */
-      height: 80px; /* Adjust as needed */
-      background-color: white;
-      border-radius: 50%;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 1000;
+    @keyframes hue { to { filter:hue-rotate(360deg);} }
+
+    .sweep{
+      position:absolute; left:0; right:0; height:2px; background:linear-gradient(90deg, transparent, #22d3eeaa, transparent);
+      animation: sweep 3.2s linear infinite;
     }
-    #loading .fa-spinner {
-      font-size: 48px; /* Adjust the size of the icon */
-      color: #ffd43b;
-      animation: spin 2s linear infinite; /* Add spinning animation */
+    @keyframes sweep {
+      0%{ top:6% } 50%{ top:94% } 100%{ top:6% }
     }
-    
-    @keyframes spin {
-      0% {boundary
-        transform: rotate(0deg);
-      }
-      100% {
-        transform: rotate(360deg);
-      }
+
+    /* Optional grid overlay toggle */
+    .gridlines{
+      position:absolute; inset:0; pointer-events:none; opacity:.35; display:none;
+      background:
+        linear-gradient(transparent 49.5%, #60a5fa55 50%, transparent 50.5%),
+        linear-gradient(90deg, transparent 16.5%, #60a5fa55 17%, transparent 17.5%, transparent 33%, #60a5fa55 33.5%, transparent 34%);
+      background-size: 100% 33.33%, 33.33% 100%;
     }
-    
-    /* Modal Styles */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0, 0, 0, 0.4);
-      padding-top: 60px;
+    .gridlines.show{ display:block; }
+
+    /* Button bar */
+    .controls{
+      display:flex; gap:10px; padding:12px; justify-content:center; flex-wrap:wrap;
+      border-top:1px solid #202a4b;
+      background:linear-gradient(180deg, #0b1226, #0a1023);
     }
-    
-    .modal-content {
-      background-color: #fefefe;
-      margin: 5% auto;
-      padding: 20px;
-      border: 1px solid #888;
-      width: 80%;
-      border-radius: 10px;
+
+    /* Side panel for results and history */
+    .side{
+      border:1px solid #2a3355;
+      border-radius:18px;
+      padding:14px;
+      background: linear-gradient(180deg, #0b1328ee, #0b1226ee);
+      min-height: 220px;
     }
-    
-    .close {
-      color: #aaa;
-      float: right;
-      font-size: 28px;
-      font-weight: bold;
+    .side h3{
+      margin:4px 0 12px;
+      font-size:14px; color:#c7d2fe; letter-spacing:.4px; text-transform:uppercase;
     }
-    
-    .close:hover,
-    .close:focus {
-      color: black;
-      text-decoration: none;
-      cursor: pointer;
+
+    .status{
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+      margin-bottom:10px;
     }
-    
-    table {
-      width: 100%;
-      border-collapse: collapse;
+    .badge{
+      padding:6px 10px; border-radius:999px; font-weight:700; font-size:13px;
+      letter-spacing:.3px; border:1px solid #2a3355; background:#101a36;
     }
-    
-    th,
-    td {
-      padding: 12px;
-      border: 1px solid #ddd;
-      text-align: left;
+    .badge.ok{ border-color:#15803d; background:#0f2e1f; color:#86efac;}
+    .badge.bad{ border-color:#b91c1c; background:#2a1414; color:#fecaca;}
+    .shake{ animation: shake .3s ease-in-out 0s 2; }
+    @keyframes shake{
+      0%{ transform:translateX(0) } 25%{ transform:translateX(-4px) } 50%{ transform:translateX(4px) } 75%{ transform:translateX(-3px) } 100%{ transform:translateX(0) }
     }
-    
-    th {
-      background-color: #f2f2f2;
-    }</style>
-  <head>
-    <title>KVIS !</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
-  </head>
-  <body>
-    <header class="topic">KVIS OPEN HOUSE 2024</header>
-    <section class="two" id="scan">
-      <div class="container">
-        <div class="camera-row">
-          <div id="camera-container">
-            <div class="wrapper">
-              <video id="video" autoplay></video>
-              <div class="blue-frame"></div>
-            </div>
-            <canvas id="canvas"></canvas>
-            <div class="button-row">
-              <button id="capture-button" class="capture"><i class="fa-solid fa-camera"></i></button>
+
+    .chips{ display:flex; flex-wrap:wrap; gap:8px; }
+    .chip{
+      background:#111a35; border:1px solid #2a3355; color:#cbd5e1;
+      padding:6px 10px; border-radius:999px; font-size:12px; font-weight:600;
+    }
+
+    .cards{
+      display:grid; gap:10px;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+    }
+    @media(max-width: 520px){ .cards{ grid-template-columns: 1fr; } }
+    .card{
+      border:1px solid #253058; border-radius:14px; padding:10px 12px; background:#0d1733;
+    }
+    .card h4{ margin:0 0 8px; font-size:13px; color:#93c5fd; letter-spacing:.3px; }
+    .card table{ width:100%; border-collapse:collapse; font-size:13px; }
+    .card th, .card td{ padding:8px 6px; border-bottom:1px solid #1c2444; text-align:left; }
+    .card th{ color:#a5b4fc; font-weight:700; }
+    .muted{ color:#8aa0ba; font-size:13px; }
+
+    /* Modal */
+    .modal{
+      display:none; position:fixed; inset:0; z-index:50; background: rgba(0,0,0,.55);
+      backdrop-filter: blur(4px);
+    }
+    .modal.show{ display:block; }
+    .modal .panel{
+      width:min(900px, 94vw);
+      margin:6vh auto;
+      background: linear-gradient(180deg, #0c142b, #0b1226);
+      border:1px solid #2a3355; border-radius:18px;
+      box-shadow:0 25px 80px #000a;
+      overflow:hidden;
+    }
+    .panel-head{
+      display:flex; align-items:center; justify-content:space-between; padding:14px 16px;
+      border-bottom:1px solid #22315a;
+    }
+    .panel-head h3{ margin:0; font-size:16px; color:#cbd5e1; }
+    .panel-body{ padding:14px 16px 18px; }
+
+    /* Loading overlay */
+    #loading{
+      position:fixed; inset:0; display:none; place-items:center; z-index:60;
+      background:rgba(3,8,23,.35); backdrop-filter: blur(2px);
+    }
+    #loading .loader{
+      width:92px; height:92px; border-radius:16px;
+      background: linear-gradient(180deg, #0d1733, #0b1226);
+      border:1px solid #2a3355; display:grid; place-items:center;
+      box-shadow:0 8px 30px #000a;
+    }
+    .spin{
+      width:44px; height:44px; border-radius:50%;
+      border:4px solid #22315a; border-top-color:#60a5fa;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin{ to { transform: rotate(360deg); } }
+
+    /* Toasts */
+    .toast{
+      position:fixed; right:14px; bottom:14px; z-index:70;
+      display:none; min-width: 200px;
+      background:#0d1733; border:1px solid #2a3355; color:#dbeafe; padding:10px 12px; border-radius:12px;
+      box-shadow:0 8px 30px #0008;
+    }
+    .toast.show{ display:block; animation: fadein .15s ease; }
+    @keyframes fadein{ from{ opacity:0; transform:translateY(6px)} to{ opacity:1; transform:translateY(0)} }
+
+    /* Help */
+    .kbd{
+      background:#0e1630; border:1px solid #2a3355; border-bottom-width:3px;
+      padding:2px 8px; border-radius:8px; font-weight:700; font-size:12px; color:#cbd5e1;
+    }
+  </style>
+</head>
+<body>
+  <header class="topic">
+    KVIS OPEN HOUSE 2024
+    <small>Document scan and subject detection</small>
+  </header>
+
+  <div class="shell">
+    <div class="scanner-card">
+      <div class="topbar">
+        <div class="brand">
+          <div class="dot"></div>
+          <h2>KVIS Scanner</h2>
+        </div>
+        <div class="actions">
+          <button class="kbtn ghost" id="btnHelp"><i class="fa-regular fa-circle-question"></i> Help</button>
+          <button class="kbtn" id="btnMirror" title="Mirror video"><i class="fa-solid fa-arrows-left-right-to-line"></i> Mirror</button>
+          <button class="kbtn" id="btnGrid"><i class="fa-solid fa-border-all"></i> Grid</button>
+          <button class="kbtn" id="btnTorch" disabled><i class="fa-solid fa-bolt"></i> Torch</button>
+          <button class="kbtn" id="btnSwitch"><i class="fa-solid fa-camera-rotate"></i> Switch</button>
+          <button class="kbtn primary" id="capture-button"><i class="fa-solid fa-camera"></i> Capture <span class="muted">(Space)</span></button>
+        </div>
+      </div>
+
+      <div class="grid">
+        <!-- Left: live camera -->
+        <div class="camera-wrap" id="cameraWrap">
+          <div class="video-stage" id="stage">
+            <video id="video" autoplay playsinline></video>
+            <div class="frame">
+              <div class="sweep"></div>
+              <div class="gridlines" id="gridlines"></div>
             </div>
           </div>
+          <canvas id="canvas" style="display:none;"></canvas>
+
+          <div class="controls">
+            <button class="kbtn" id="btnCountdown" title="Hold Shift then click Capture for a 3 second timer"><i class="fa-regular fa-clock"></i> 3s Timer tip</button>
+            <button class="kbtn" id="btnCopy" disabled><i class="fa-regular fa-copy"></i> Copy</button>
+            <button class="kbtn" id="btnDownload" disabled><i class="fa-solid fa-file-arrow-down"></i> Download JSON</button>
+            <button class="kbtn bad" id="btnClear"><i class="fa-regular fa-trash-can"></i> Clear History</button>
+          </div>
         </div>
-        <div id="result-container"></div>
+
+        <!-- Right: results and history -->
+        <aside class="side" id="sidePanel">
+          <h3>Latest Result</h3>
+          <div class="status" id="statusBox">
+            <span class="badge" id="badgeIdle"><i class="fa-regular fa-circle"></i> Idle</span>
+          </div>
+
+          <div class="chips" id="chips"></div>
+
+          <div class="cards" style="margin-top:12px">
+            <div class="card">
+              <h4>Detected Subjects</h4>
+              <table id="tableCompact">
+                <thead><tr><th>Color</th><th>Code</th><th>Name</th></tr></thead>
+                <tbody></tbody>
+              </table>
+              <div class="muted" id="noData" style="display:none; padding-top:6px;">No subjects yet. Take a picture.</div>
+            </div>
+            <div class="card">
+              <h4>Meta</h4>
+              <table>
+                <tbody id="metaBody">
+                  <tr><td>Valid</td><td id="metaValid">-</td></tr>
+                  <tr><td>Reasons</td><td id="metaReasons">-</td></tr>
+                  <tr><td>Timestamp</td><td id="metaTime">-</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <h3 style="margin-top:16px">History</h3>
+          <div class="card">
+            <table id="historyTable">
+              <thead><tr><th style="width:110px">Time</th><th>Summary</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </aside>
       </div>
-    </section>
-
-    <!-- Loading GIF -->
-    <div id="loading">
-      <i class="fa-solid fa-spinner" style="color: #FFD43B;"></i>
     </div>
+  </div>
 
-    <!-- Modal -->
-    <div id="resultModal" class="modal">
-      <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Detected Subjects</h2>
-        <table id="resultTable">
-          <thead>
-            <tr>
-              <th>Color</th>
-              <th>Subjects</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+  <!-- Loading overlay -->
+  <div id="loading">
+    <div class="loader"><div class="spin" aria-label="Loading"></div></div>
+  </div>
+
+  <!-- Result modal for full table (kept your original id API) -->
+  <div id="resultModal" class="modal" aria-hidden="true">
+    <div class="panel">
+      <div class="panel-head">
+        <h3>Detected Subjects</h3>
+        <button class="kbtn ghost" id="btnCloseModal"><i class="fa-solid fa-xmark"></i> Close</button>
+      </div>
+      <div class="panel-body">
+        <div style="margin-bottom:12px" id="modalStatus"></div>
+        <div class="card">
+          <table id="resultTable">
+            <thead>
+              <tr><th>Color</th><th>Subjects</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="muted" style="margin-top:10px">
+          Tip: press Space to close the modal or take another shot.
+        </div>
       </div>
     </div>
+  </div>
 
-    <script>
-      const video = document.getElementById('video');
-      const canvas = document.getElementById('canvas');
-      const captureButton = document.getElementById('capture-button');
-      const context = canvas.getContext('2d');
-      const modal = document.getElementById('resultModal');
-      const span = document.getElementsByClassName('close')[0];
-      const resultTable = document.getElementById('resultTable').getElementsByTagName('tbody')[0];
-      const loading = document.getElementById('loading');
-    
-      navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1920 }, height: { ideal: 1080 } } })
-          .then(stream => {
-              video.srcObject = stream;
-              video.onloadedmetadata = () => {
-                  canvas.width = video.videoWidth;
-                  canvas.height = video.videoHeight;
-              };
-          })
-          .catch(err => console.error('Error accessing camera:', err));
-    
-      function capturePhoto() {
-          context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    
-          canvas.toBlob(function(blob) {
-              const formData = new FormData();
-              formData.append('file', blob, 'photo.jpg');
-              loading.style.opacity = '1';
-    
-              fetch('/upload', {
-                  method: 'POST',
-                  body: formData
-              })
-              .then(response => response.json())
-              .then(data => {
-                  console.log('Success:', data);
-                  displayData(data);
-              })
-              .catch((error) => console.error('Error:', error))
-              .finally(() => {
-                  loading.style.opacity = '0';
-                  modal.style.display = "block";
-              });
-          }, 'image/jpeg');
-      }
-    
-      captureButton.addEventListener('click', capturePhoto);
-    
-      span.onclick = function() {
-          modal.style.display = "none";
-      }
-    
-      window.onclick = function(event) {
-          if (event.target == modal) {
-              modal.style.display = "none";
-          }
-      }
-    
-      function displayData(data) {
-        const resultTableBody = document.getElementById('resultTable').getElementsByTagName('tbody')[0];
-        resultTableBody.innerHTML = '';  // Clear existing content
-    
-        // Creating a color-coded table structure
-        const colors = {
-            'Blue': '#00A8BEFF',
-            'Yellow': '#9FBB00FF',
-            'Red': '#FF5E5EFF',
-            'Brown': '#8B4513'
-        };
-        
-        Object.keys(colors).forEach(color => {
-            // Filter subjects by color
-            const filteredSubjects = data.subject_list.filter(item => item[0] === color);
-            
-            // Always create a row for the color
-            const colorRow = resultTableBody.insertRow();
-            const colorCell = colorRow.insertCell(0);
-            colorCell.colSpan = 2;
-            colorCell.style.backgroundColor = colors[color];
-            colorCell.style.color = '#fff';
-            colorCell.style.fontWeight = 'bold';
-            colorCell.textContent = `${color} (${filteredSubjects.length})`;
-    
-            // Add subjects under the color or indicate no subjects found
-            if (filteredSubjects.length > 0) {
-                filteredSubjects.forEach(subject => {
-                    const row = resultTableBody.insertRow();
-                    const codeCell = row.insertCell(0);
-                    const nameCell = row.insertCell(1);
-                    codeCell.textContent = subject[1][0];
-                    nameCell.textContent = subject[1][1];
-                });
-            } else {
-                const noSubjectsRow = resultTableBody.insertRow();
-                const noSubjectsCell = noSubjectsRow.insertCell(0);
-                noSubjectsCell.colSpan = 2;
-                noSubjectsCell.textContent = 'No subjects found for this color.';
-            }
-        });
-    
-        // Append validity status in large size
-        const validityRow = resultTableBody.insertRow();
-        const validityCell = validityRow.insertCell(0);
-        validityCell.colSpan = 2;
-        validityCell.style.fontWeight = 'bold';
-        validityCell.style.paddingTop = '20px';
-        validityCell.style.fontSize = '4em';  // Large font size
-        validityCell.style.textAlign = 'center';
-        validityCell.style.color = data.validity ? 'green' : 'red';
-        validityCell.textContent = data.validity ? 'Valid' : 'Invalid';
-    
-        // Append reasons if the result is invalid
-        if (data.reasons && !data.validity) {
-            const reasonsRow = resultTableBody.insertRow();
-            const reasonsCell = reasonsRow.insertCell(0);
-            reasonsCell.colSpan = 2;
-            reasonsCell.style.color = 'red';
-            reasonsCell.style.paddingTop = '10px';
-            reasonsCell.style.fontSize = '1.2em';  // Medium-large font size
-            reasonsCell.style.textAlign = 'center';
-            reasonsCell.textContent = `Reasons: ${data.reasons.join(', ')}`;
-        }
-    
-        // Display the modal with the results
-        modal.style.display = "block";
+  <!-- Help modal -->
+  <div id="helpModal" class="modal" aria-hidden="true">
+    <div class="panel">
+      <div class="panel-head">
+        <h3>Shortcuts and tips</h3>
+        <button class="kbtn ghost" id="btnCloseHelp"><i class="fa-solid fa-xmark"></i> Close</button>
+      </div>
+      <div class="panel-body">
+        <ul class="muted" style="line-height:1.8">
+          <li><span class="kbd">Space</span> capture when idle, close modal when open</li>
+          <li><span class="kbd">S</span> switch camera, <span class="kbd">M</span> mirror, <span class="kbd">G</span> grid</li>
+          <li>Hold <span class="kbd">Shift</span> and click Capture for a 3 second countdown</li>
+          <li>Torch button is enabled on supported phones only</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // Elements
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const stage = document.getElementById('stage');
+    const gridlines = document.getElementById('gridlines');
+
+    const captureBtn = document.getElementById('capture-button');
+    const mirrorBtn = document.getElementById('btnMirror');
+    const gridBtn = document.getElementById('btnGrid');
+    const switchBtn = document.getElementById('btnSwitch');
+    const torchBtn = document.getElementById('btnTorch');
+    const helpBtn = document.getElementById('btnHelp');
+    const closeHelpBtn = document.getElementById('btnCloseHelp');
+
+    const loading = document.getElementById('loading');
+    const toast = document.getElementById('toast');
+
+    const resultModal = document.getElementById('resultModal');
+    const btnCloseModal = document.getElementById('btnCloseModal');
+    const resultTableBody = document.getElementById('resultTable').getElementsByTagName('tbody')[0];
+    const modalStatus = document.getElementById('modalStatus');
+
+    const statusBox = document.getElementById('statusBox');
+    const chipsWrap = document.getElementById('chips');
+    const compactTbody = document.getElementById('tableCompact').getElementsByTagName('tbody')[0];
+    const noData = document.getElementById('noData');
+    const metaValid = document.getElementById('metaValid');
+    const metaReasons = document.getElementById('metaReasons');
+    const metaTime = document.getElementById('metaTime');
+
+    const copyBtn = document.getElementById('btnCopy');
+    const dlBtn = document.getElementById('btnDownload');
+    const clearBtn = document.getElementById('btnClear');
+    const btnCountdown = document.getElementById('btnCountdown');
+
+    const helpModal = document.getElementById('helpModal');
+
+    // Camera state
+    let stream = null;
+    let currentFacing = 'environment'; // or 'user'
+    let currentDeviceId = null;
+    let supportTorch = false;
+
+    // Result cache
+    let lastResult = null;
+
+    // Colors
+    const COLORS = {
+      'Blue':   '#00A8BE',
+      'Yellow': '#9FBB00',
+      'Red':    '#FF5E5E',
+      'Brown':  '#8B4513'
+    };
+
+    // Utils
+    function showToast(msg, ms=1800){ toast.textContent = msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'), ms); }
+    function showLoading(v){ loading.style.display = v ? 'grid' : 'none'; }
+    function showModal(el, v){ el.classList.toggle('show', v); el.setAttribute('aria-hidden', v ? 'false' : 'true'); }
+
+    function timeNow(){
+      const dt = new Date();
+      const pad=n=>String(n).padStart(2,'0');
+      return `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())} ${pad(dt.getHours())}:${pad(dt.getMinutes())}:${pad(dt.getSeconds())}`;
     }
 
-    // Keyboard input: Spacebar triggers capture or closes modal
-    document.addEventListener('keydown', function(event) {
-        // Ignore if focus is on an input or textarea
-        if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+    function setStatusIdle(){
+      statusBox.innerHTML = `<span class="badge"><i class="fa-regular fa-circle"></i> Idle</span>`;
+    }
+    function setStatusValid(){
+      statusBox.innerHTML = `<span class="badge ok"><i class="fa-solid fa-shield"></i> Valid</span>`;
+    }
+    function setStatusInvalid(){
+      statusBox.innerHTML = `<span class="badge bad"><i class="fa-solid fa-triangle-exclamation"></i> Invalid</span>`;
+      statusBox.classList.add('shake'); setTimeout(()=>statusBox.classList.remove('shake'), 600);
+    }
 
-        if (event.code === 'Space' || event.key === ' ') {
-          event.preventDefault();
-          if (modal.style.display === "block") {
-            modal.style.display = "none";
-          } else {
-            captureButton.click();
-          }
-        }
+    // History
+    function loadHistory(){ try{ return JSON.parse(localStorage.getItem('kvis_history')||'[]'); }catch{ return []; } }
+    function saveHistory(arr){ localStorage.setItem('kvis_history', JSON.stringify(arr.slice(0,30))); }
+    function pushHistory(entry){ const arr = loadHistory(); arr.unshift(entry); saveHistory(arr); renderHistory(); }
+    function clearHistory(){ saveHistory([]); renderHistory(); showToast('History cleared'); }
+
+    function renderHistory(){
+      const tbody = document.querySelector('#historyTable tbody');
+      tbody.innerHTML = '';
+      const arr = loadHistory();
+      if(!arr.length){ tbody.innerHTML = `<tr><td class="muted" colspan="2">No history yet</td></tr>`; return; }
+      for(const item of arr){
+        const tr = document.createElement('tr');
+        const t = document.createElement('td'); t.textContent = item.time;
+        const s = document.createElement('td'); s.textContent = item.summary;
+        tr.appendChild(t); tr.appendChild(s); tbody.appendChild(tr);
+      }
+    }
+
+    // Camera controls
+    async function getDevices(){
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      return devices.filter(d=>d.kind === 'videoinput');
+    }
+
+    async function startStream(opts={}){
+      if(stream){
+        stream.getTracks().forEach(t=>t.stop());
+        stream = null;
+      }
+      const constraints = {
+        video: {
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+          facingMode: opts.deviceId ? undefined : { ideal: currentFacing },
+          deviceId: opts.deviceId ? { exact: opts.deviceId } : undefined
+        },
+        audio: false
+      };
+      try{
+        stream = await navigator.mediaDevices.getUserMedia(constraints);
+        video.srcObject = stream;
+
+        // Torch capability
+        const track = stream.getVideoTracks()[0];
+        supportTorch = !!(track.getCapabilities && track.getCapabilities().torch);
+        torchBtn.disabled = !supportTorch;
+
+        video.onloadedmetadata = () => {
+          canvas.width  = video.videoWidth  || 1920;
+          canvas.height = video.videoHeight || 1080;
+        };
+      }catch(err){
+        console.error('Camera error', err);
+        showToast('Cannot access camera');
+      }
+    }
+
+    async function switchCamera(){
+      const devs = await getDevices();
+      if(!devs.length){ showToast('No other camera found'); return; }
+
+      // toggle facing if possible
+      currentFacing = currentFacing === 'environment' ? 'user' : 'environment';
+
+      // Best effort deviceId selection to match facing
+      let target = null;
+      const labelMatch = currentFacing === 'environment' ? /back|rear|environment/i : /front|user/i;
+      target = devs.find(d=>labelMatch.test(d.label)) || devs[0];
+      currentDeviceId = target.deviceId;
+      await startStream({ deviceId: currentDeviceId });
+    }
+
+    async function toggleTorch(){
+      if(!stream){ return; }
+      const track = stream.getVideoTracks()[0];
+      if(!(track.getCapabilities && track.getCapabilities().torch)){ return; }
+      const settings = track.getSettings();
+      const now = !settings.torch;
+      try{
+        await track.applyConstraints({ advanced: [{ torch: now }] });
+        showToast(now ? 'Torch on' : 'Torch off');
+      }catch(e){
+        showToast('Torch not available for this mode');
+      }
+    }
+
+    function toggleMirror(){
+      document.getElementById('cameraWrap').classList.toggle('mirrored');
+    }
+
+    function toggleGrid(){
+      gridlines.classList.toggle('show');
+    }
+
+    // Capture
+    async function capturePhoto(ev){
+      const useCountdown = ev && ev.shiftKey; // hold Shift for 3s timer
+      if(useCountdown){
+        await countdown(3);
+      }
+
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.95));
+      if(!blob){ showToast('Capture failed'); return; }
+
+      await uploadBlob(blob);
+    }
+
+    function countdown(s){
+      return new Promise(resolve=>{
+        const label = document.createElement('div');
+        label.style.position='absolute'; label.style.inset='0';
+        label.style.display='grid'; label.style.placeItems='center';
+        label.style.fontSize='80px'; label.style.fontWeight='900';
+        label.style.color='#e5e7eb'; label.style.textShadow='0 6px 30px #000a';
+        label.style.background='rgba(0,0,0,.25)';
+        label.style.backdropFilter='blur(1px)';
+        label.id = 'countdownLabel';
+        stage.appendChild(label);
+
+        let n = s;
+        label.textContent = n;
+        const id = setInterval(()=>{
+          n--; if(n<=0){ clearInterval(id); stage.removeChild(label); resolve(); }
+          else { label.textContent = n; }
+        }, 1000);
       });
-    </script>
-  </body>
+    }
+
+    async function uploadBlob(blob){
+      showLoading(true);
+      try{
+        const fd = new FormData();
+        fd.append('file', blob, 'photo.jpg');
+        const resp = await fetch('/upload', { method:'POST', body: fd });
+        if(!resp.ok){ throw new Error('Server error'); }
+        const data = await resp.json();
+        handleResult(data);
+      }catch(e){
+        console.error(e);
+        showToast('Upload failed');
+      }finally{
+        showLoading(false);
+      }
+    }
+
+    // Result handling
+    function handleResult(data){
+      lastResult = data;
+      copyBtn.disabled = false; dlBtn.disabled = false;
+
+      // UI status
+      if(data.validity){
+        setStatusValid();
+        try{
+          confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
+        }catch{}
+      }else{
+        setStatusInvalid();
+      }
+
+      // Chips: totals
+      const totalsByColor = { Blue:0, Yellow:0, Red:0, Brown:0 };
+      for(const item of data.subject_list){ totalsByColor[item[0]] = (totalsByColor[item[0]]||0)+1; }
+      chipsWrap.innerHTML = '';
+      for(const k of Object.keys(COLORS)){
+        const chip = document.createElement('div');
+        chip.className = 'chip';
+        chip.style.borderColor = '#0000';
+        chip.style.boxShadow = `inset 0 0 0 2px ${COLORS[k]}33`;
+        chip.innerHTML = `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${COLORS[k]};margin-right:8px;vertical-align:middle"></span>${k} <b>(${totalsByColor[k]||0})</b>`;
+        chipsWrap.appendChild(chip);
+      }
+
+      // Compact table
+      compactTbody.innerHTML = '';
+      if(!data.subject_list.length){
+        noData.style.display = '';
+      }else{
+        noData.style.display = 'none';
+        for(const [color, pair] of data.subject_list){
+          const tr = document.createElement('tr');
+          const c = document.createElement('td'); c.textContent = color; c.style.fontWeight='700'; c.style.color = '#e5e7eb'; c.style.background = COLORS[color]+'22';
+          const code = document.createElement('td'); code.textContent = pair[0];
+          const name = document.createElement('td'); name.textContent = pair[1];
+          tr.appendChild(c); tr.appendChild(code); tr.appendChild(name);
+          compactTbody.appendChild(tr);
+        }
+      }
+
+      // Meta
+      metaValid.textContent = data.validity ? 'Yes' : 'No';
+      metaValid.style.color = data.validity ? '#86efac' : '#fecaca';
+      metaReasons.textContent = (!data.validity && data.reasons && data.reasons.length) ? data.reasons.join(', ') : '-';
+      metaReasons.style.color = (!data.validity && data.reasons && data.reasons.length) ? '#fca5a5' : '#8aa0ba';
+      metaTime.textContent = timeNow();
+
+      // History entry
+      const summary = data.validity ? 'Valid' : 'Invalid';
+      pushHistory({ time: metaTime.textContent, summary: `${summary} - ${data.subject_list.length} subjects` });
+
+      // Full modal table (kept your original structure)
+      fillModalTable(data);
+      showModal(resultModal, true);
+    }
+
+    function fillModalTable(data){
+      resultTableBody.innerHTML = '';
+
+      const colors = Object.keys(COLORS);
+      for(const color of colors){
+        const filtered = data.subject_list.filter(item => item[0] === color);
+
+        const colorRow = resultTableBody.insertRow();
+        const colorCell = colorRow.insertCell(0);
+        colorCell.colSpan = 2;
+        colorCell.style.backgroundColor = COLORS[color] + 'CC';
+        colorCell.style.color = '#fff';
+        colorCell.style.fontWeight = 'bold';
+        colorCell.style.padding = '8px 10px';
+        colorCell.textContent = `${color} (${filtered.length})`;
+
+        if(filtered.length){
+          for(const subject of filtered){
+            const row = resultTableBody.insertRow();
+            const codeCell = row.insertCell(0);
+            const nameCell = row.insertCell(1);
+            codeCell.textContent = subject[1][0];
+            nameCell.textContent = subject[1][1];
+          }
+        }else{
+          const row = resultTableBody.insertRow();
+          const cell = row.insertCell(0);
+          cell.colSpan = 2;
+          cell.textContent = 'No subjects found for this color.';
+        }
+      }
+
+      modalStatus.innerHTML = data.validity
+        ? `<span class="badge ok">Valid</span>`
+        : `<span class="badge bad">Invalid</span> ${data.reasons && data.reasons.length ? `<span class="muted"> - ${data.reasons.join(', ')}</span>` : ''}`;
+    }
+
+    // Copy and download
+    function copyResult(){
+      if(!lastResult){ return; }
+      const txt = JSON.stringify(lastResult, null, 2);
+      navigator.clipboard.writeText(txt).then(()=>showToast('Copied to clipboard'));
+    }
+
+    function downloadResult(){
+      if(!lastResult){ return; }
+      const blob = new Blob([JSON.stringify(lastResult, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `kvis_result_${Date.now()}.json`;
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    // Init
+    async function init(){
+      setStatusIdle();
+      renderHistory();
+      await startStream(); // try default facing
+      showToast('Camera ready');
+    }
+
+    // Events
+    captureBtn.addEventListener('click', capturePhoto);
+    mirrorBtn.addEventListener('click', toggleMirror);
+    gridBtn.addEventListener('click', toggleGrid);
+    switchBtn.addEventListener('click', switchCamera);
+    torchBtn.addEventListener('click', toggleTorch);
+    helpBtn.addEventListener('click', ()=>showModal(helpModal, true));
+    closeHelpBtn.addEventListener('click', ()=>showModal(helpModal, false));
+    btnCloseModal.addEventListener('click', ()=>showModal(resultModal, false));
+
+    copyBtn.addEventListener('click', copyResult);
+    dlBtn.addEventListener('click', downloadResult);
+    clearBtn.addEventListener('click', clearHistory);
+    btnCountdown.addEventListener('click', ()=>showToast('Hold Shift then click Capture for 3 second timer'));
+
+    // Close modals by clicking the backdrop
+    [resultModal, helpModal].forEach(modal=>{
+      modal.addEventListener('click', (e)=>{ if(e.target === modal){ showModal(modal, false); }});
+    });
+
+    // Keyboard
+    document.addEventListener('keydown', (e)=>{
+      if(['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return;
+
+      if(e.code === 'Space' || e.key === ' '){
+        e.preventDefault();
+        if(resultModal.classList.contains('show')) showModal(resultModal, false);
+        else capturePhoto(e);
+      }else if(e.key === 's' || e.key === 'S'){
+        switchCamera();
+      }else if(e.key === 'm' || e.key === 'M'){
+        toggleMirror();
+      }else if(e.key === 'g' || e.key === 'G'){
+        toggleGrid();
+      }
+    });
+
+    // Start
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+      showToast('Camera API not supported');
+    }else{
+      init();
+    }
+  </script>
+</body>
 </html>
