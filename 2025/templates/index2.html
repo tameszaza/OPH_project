@@ -1,31 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
   <meta charset="utf-8" />
   <title>KVIS Scanner</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Fonts and icons -->
+  <!-- Fonts & icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Kalnia+Glaze:wght@300;600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 
-  <!-- Confetti for celebrations -->
+  <!-- Confetti -->
   <script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <style>
     :root{
-      --bg:#0b1020;
-      --card:#121a33cc;
-      --muted:#64748b;
-      --ring:#60a5fa;
-      --ok:#16a34a;
-      --bad:#ef4444;
-      --chip:#1f2a4b;
-      --accent:#f59e0b;
-      --glass: blur(10px) saturate(110%);
+      --bg:#0b1020; --card:#121a33cc; --muted:#64748b; --ring:#60a5fa;
+      --ok:#16a34a; --bad:#ef4444; --chip:#1f2a4b; --accent:#f59e0b; --glass: blur(10px) saturate(110%);
     }
-
     *{box-sizing:border-box}
     html,body{height:100%;}
     body{
@@ -37,265 +29,122 @@
         radial-gradient(900px 600px at -10% 90%, #1e293b66 10%, transparent 70%),
         linear-gradient(180deg, #0a0f1f 0%, #0b1020 100%);
     }
-
     header.topic{
       font-family: 'Kalnia Glaze', serif;
-      text-align:center;
-      font-size: clamp(28px, 4vw, 56px);
-      color:#fff;
-      padding:18px 20px;
-      margin:10px auto 6px;
-      width:min(1100px, 92vw);
-      border-radius:20px;
-      position:relative;
-      letter-spacing:.5px;
+      text-align:center; font-size: clamp(28px, 4vw, 56px);
+      color:#fff; padding:18px 20px; margin:10px auto 6px;
+      width:min(1100px, 92vw); border-radius:20px; position:relative; letter-spacing:.5px;
       background: linear-gradient(135deg, #1f2937aa, #111827aa);
-      backdrop-filter: var(--glass);
-      box-shadow: 0 15px 40px #0007, inset 0 1px 0 #ffffff11;
+      backdrop-filter: var(--glass); box-shadow: 0 15px 40px #0007, inset 0 1px 0 #ffffff11;
     }
-    header.topic small{
-      display:block;
-      font-family: Inter, sans-serif;
-      color:#a0aec0;
-      margin-top:4px;
-      font-size:.55em;
-      letter-spacing:.2px;
-    }
+    header.topic small{ display:block; font-family: Inter, sans-serif; color:#a0aec0; margin-top:4px; font-size:.55em; letter-spacing:.2px; }
 
-    .shell{
-      width:min(1200px, 95vw);
-      margin:14px auto 60px;
-    }
+    .shell{ width:min(1200px, 95vw); margin:14px auto 60px; }
+    .scanner-card{ background: linear-gradient(180deg, #0b1328ee, #0b1226ee); border:1px solid #2a3355; border-radius:22px; padding:18px; box-shadow: 0 20px 60px #0008, inset 0 1px 0 #ffffff0e; }
 
-    .scanner-card{
-      background: linear-gradient(180deg, #0b1328ee, #0b1226ee);
-      border:1px solid #2a3355;
-      border-radius:22px;
-      padding:18px;
-      box-shadow: 0 20px 60px #0008, inset 0 1px 0 #ffffff0e;
-    }
-
-    .topbar{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      justify-content:space-between;
-      margin-bottom:10px;
-    }
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
-    .brand .dot{
-      width:10px;height:10px;border-radius:50%;
-      background: radial-gradient(circle at 30% 30%, #93c5fd, #3b82f6);
-      box-shadow:0 0 16px #60a5fa;
-    }
-    .brand h2{
-      margin:0;color:#cbd5e1;font-size:16px;font-weight:700;letter-spacing:.4px;
-    }
-    .actions{
-      display:flex; gap:8px; flex-wrap:wrap; align-items:center;
-    }
+    .topbar{ display:flex; gap:10px; align-items:center; justify-content:space-between; margin-bottom:10px; }
+    .brand{ display:flex; align-items:center; gap:10px; }
+    .brand .dot{ width:10px;height:10px;border-radius:50%; background: radial-gradient(circle at 30% 30%, #93c5fd, #3b82f6); box-shadow:0 0 16px #60a5fa; }
+    .brand h2{ margin:0;color:#cbd5e1;font-size:16px;font-weight:700;letter-spacing:.4px; }
+    .actions{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
     button.kbtn{
-      appearance:none;
-      border:1px solid #32406c;
-      background: linear-gradient(180deg, #142046, #101936);
-      color:#e2e8f0;
-      padding:10px 12px;
-      border-radius:12px;
-      font-weight:600;
-      font-size:14px;
-      cursor:pointer;
-      display:inline-flex; gap:8px; align-items:center;
-      transition:transform .06s ease, border-color .2s, box-shadow .2s;
+      appearance:none; border:1px solid #32406c; background: linear-gradient(180deg, #142046, #101936);
+      color:#e2e8f0; padding:10px 12px; border-radius:12px; font-weight:600; font-size:14px; cursor:pointer;
+      display:inline-flex; gap:8px; align-items:center; transition:transform .06s ease, border-color .2s, box-shadow .2s;
     }
-    button.kbtn:hover{ border-color:#4663a6; box-shadow:0 0 0 3px #3b82f622;}
+    button.kbtn:hover{ border-color:#4663a6; box-shadow:0 0 0 3px #3b82f622; }
     button.kbtn:active{ transform:translateY(1px); }
     button.kbtn.primary{ background:linear-gradient(180deg, #1f3b7a, #172b55); border-color:#3c5aa6;}
     button.kbtn.ghost{ background:transparent; border-color:#27335a;}
     button.kbtn.ok{ background:linear-gradient(180deg, #1c5432, #143a24); border-color:#2f855a;}
     button.kbtn.bad{ background:linear-gradient(180deg, #5a1f1f, #3a1414); border-color:#b91c1c;}
 
-    .grid{
-      display:grid;
-      grid-template-columns: 1.2fr .8fr;
-      gap:18px;
-    }
+    .grid{ display:grid; grid-template-columns: 1.2fr .8fr; gap:18px; }
     @media(max-width: 980px){ .grid{ grid-template-columns: 1fr; } }
 
-    /* Camera panel */
-    .camera-wrap{
-      position:relative;
-      border-radius:18px;
-      overflow:hidden;
-      border:1px solid #2a3355;
-      background:#0a1025;
-    }
-
-    .video-stage{
-      position:relative;
-      aspect-ratio: 16 / 9;
-      background: #0a1025;
-      display:flex; align-items:center; justify-content:center;
-    }
-    video#video{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      background:#0a1025;
-      transition: transform .2s ease;
-    }
+    .camera-wrap{ position:relative; border-radius:18px; overflow:hidden; border:1px solid #2a3355; background:#0a1025; }
+    .video-stage{ position:relative; aspect-ratio: 16 / 9; background: #0a1025; display:flex; align-items:center; justify-content:center; }
+    video#video{ width:100%; height:100%; object-fit:cover; background:#0a1025; transition: transform .2s ease; }
     .mirrored video#video{ transform: scaleX(-1); }
 
-    /* Animated scan frame with corners and sweep line */
-    .frame{
-      position:absolute; inset:3% 12%;
-      border-radius:18px;
-      pointer-events:none;
-    }
-    .frame::before, .frame::after{
-      content:""; position:absolute; inset:0; border-radius:inherit;
-    }
+    .frame{ position:absolute; inset:3% 12%; border-radius:18px; pointer-events:none; }
     .frame::before{
-      border:2px solid transparent;
-      background:
-          linear-gradient(#0000,#0000) padding-box,
-          conic-gradient(from 0deg, #60a5fa, #22d3ee, #a78bfa, #60a5fa) border-box;
+      content:""; position:absolute; inset:0; border-radius:inherit; border:2px solid transparent;
+      background: linear-gradient(#0000,#0000) padding-box, conic-gradient(from 0deg, #60a5fa, #22d3ee, #a78bfa, #60a5fa) border-box;
       -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
-      -webkit-mask-composite: xor; mask-composite: exclude;
-      animation: hue 6s linear infinite;
+      -webkit-mask-composite: xor; mask-composite: exclude; animation: hue 6s linear infinite;
     }
     @keyframes hue { to { filter:hue-rotate(360deg);} }
-
-    .sweep{
-      position:absolute; left:0; right:0; height:2px; background:linear-gradient(90deg, transparent, #22d3eeaa, transparent);
-      animation: sweep 3.2s linear infinite;
-    }
-    @keyframes sweep {
-      0%{ top:6% } 50%{ top:94% } 100%{ top:6% }
-    }
-
-    /* Optional grid overlay toggle */
-    .gridlines{
-      position:absolute; inset:0; pointer-events:none; opacity:.35; display:none;
-      background:
-        linear-gradient(transparent 49.5%, #60a5fa55 50%, transparent 50.5%),
-        linear-gradient(90deg, transparent 16.5%, #60a5fa55 17%, transparent 17.5%, transparent 33%, #60a5fa55 33.5%, transparent 34%);
+    .sweep{ position:absolute; left:0; right:0; height:2px; background:linear-gradient(90deg, transparent, #22d3eeaa, transparent); animation: sweep 3.2s linear infinite; }
+    @keyframes sweep { 0%{ top:6% } 50%{ top:94% } 100%{ top:6% } }
+    .gridlines{ position:absolute; inset:0; pointer-events:none; opacity:.35; display:none;
+      background: linear-gradient(transparent 49.5%, #60a5fa55 50%, transparent 50.5%),
+                  linear-gradient(90deg, transparent 16.5%, #60a5fa55 17%, transparent 17.5%, transparent 33%, #60a5fa55 33.5%, transparent 34%);
       background-size: 100% 33.33%, 33.33% 100%;
     }
     .gridlines.show{ display:block; }
 
-    /* Button bar */
-    .controls{
-      display:flex; gap:10px; padding:12px; justify-content:center; flex-wrap:wrap;
-      border-top:1px solid #202a4b;
-      background:linear-gradient(180deg, #0b1226, #0a1023);
-    }
+    .controls{ display:flex; gap:10px; padding:12px; justify-content:center; flex-wrap:wrap; border-top:1px solid #202a4b; background:linear-gradient(180deg, #0b1226, #0a1023); }
 
-    /* Side panel for results and history */
-    .side{
-      border:1px solid #2a3355;
-      border-radius:18px;
-      padding:14px;
-      background: linear-gradient(180deg, #0b1328ee, #0b1226ee);
-      min-height: 220px;
-    }
-    .side h3{
-      margin:4px 0 12px;
-      font-size:14px; color:#c7d2fe; letter-spacing:.4px; text-transform:uppercase;
-    }
+    .side{ border:1px solid #2a3355; border-radius:18px; padding:14px; background: linear-gradient(180deg, #0b1328ee, #0b1226ee); min-height: 220px; }
+    .side h3{ margin:4px 0 12px; font-size:14px; color:#c7d2fe; letter-spacing:.4px; text-transform:uppercase; }
 
-    .status{
-      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-      margin-bottom:10px;
-    }
-    .badge{
-      padding:6px 10px; border-radius:999px; font-weight:700; font-size:13px;
-      letter-spacing:.3px; border:1px solid #2a3355; background:#101a36;
-    }
+    .status{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+    .badge{ padding:6px 10px; border-radius:999px; font-weight:700; font-size:13px; letter-spacing:.3px; border:1px solid #2a3355; background:#101a36; }
     .badge.ok{ border-color:#15803d; background:#0f2e1f; color:#86efac;}
     .badge.bad{ border-color:#b91c1c; background:#2a1414; color:#fecaca;}
     .shake{ animation: shake .3s ease-in-out 0s 2; }
-    @keyframes shake{
-      0%{ transform:translateX(0) } 25%{ transform:translateX(-4px) } 50%{ transform:translateX(4px) } 75%{ transform:translateX(-3px) } 100%{ transform:translateX(0) }
-    }
+    @keyframes shake{ 0%{ transform:translateX(0) } 25%{ transform:translateX(-4px) } 50%{ transform:translateX(4px) } 75%{ transform:translateX(-3px) } 100%{ transform:translateX(0) } }
 
     .chips{ display:flex; flex-wrap:wrap; gap:8px; }
-    .chip{
-      background:#111a35; border:1px solid #2a3355; color:#cbd5e1;
-      padding:6px 10px; border-radius:999px; font-size:12px; font-weight:600;
-    }
+    .chip{ background:#111a35; border:1px solid #2a3355; color:#cbd5e1; padding:6px 10px; border-radius:999px; font-size:12px; font-weight:600; }
 
-    .cards{
-      display:grid; gap:10px;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-    }
+    .cards{ display:grid; gap:10px; grid-template-columns: repeat(2, minmax(0,1fr)); }
     @media(max-width: 520px){ .cards{ grid-template-columns: 1fr; } }
-    .card{
-      border:1px solid #253058; border-radius:14px; padding:10px 12px; background:#0d1733;
-    }
+    .card{ border:1px solid #253058; border-radius:14px; padding:10px 12px; background:#0d1733; }
     .card h4{ margin:0 0 8px; font-size:13px; color:#93c5fd; letter-spacing:.3px; }
     .card table{ width:100%; border-collapse:collapse; font-size:13px; }
     .card th, .card td{ padding:8px 6px; border-bottom:1px solid #1c2444; text-align:left; }
     .card th{ color:#a5b4fc; font-weight:700; }
     .muted{ color:#8aa0ba; font-size:13px; }
 
-    /* Modal */
-    .modal{
-      display:none; position:fixed; inset:0; z-index:50; background: rgba(0,0,0,.55);
-      backdrop-filter: blur(4px);
-    }
+    .modal{ display:none; position:fixed; inset:0; z-index:50; background: rgba(0,0,0,.55); backdrop-filter: blur(4px); }
     .modal.show{ display:block; }
-    .modal .panel{
-      width:min(900px, 94vw);
-      margin:6vh auto;
-      background: linear-gradient(180deg, #0c142b, #0b1226);
-      border:1px solid #2a3355; border-radius:18px;
-      box-shadow:0 25px 80px #000a;
-      overflow:hidden;
-    }
-    .panel-head{
-      display:flex; align-items:center; justify-content:space-between; padding:14px 16px;
-      border-bottom:1px solid #22315a;
-    }
+    .panel{ width:min(900px, 94vw); margin:6vh auto; background: linear-gradient(180deg, #0c142b, #0b1226); border:1px solid #2a3355; border-radius:18px; box-shadow:0 25px 80px #000a; overflow:hidden; }
+    .panel-head{ display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-bottom:1px solid #22315a; }
     .panel-head h3{ margin:0; font-size:16px; color:#cbd5e1; }
-    .panel-body{ padding:14px 16px 18px; }
 
-    /* Loading overlay */
-    #loading{
-      position:fixed; inset:0; display:none; place-items:center; z-index:60;
-      background:rgba(3,8,23,.35); backdrop-filter: blur(2px);
-    }
-    #loading .loader{
-      width:92px; height:92px; border-radius:16px;
-      background: linear-gradient(180deg, #0d1733, #0b1226);
-      border:1px solid #2a3355; display:grid; place-items:center;
-      box-shadow:0 8px 30px #000a;
-    }
-    .spin{
-      width:44px; height:44px; border-radius:50%;
-      border:4px solid #22315a; border-top-color:#60a5fa;
-      animation: spin 1s linear infinite;
-    }
+    /* UPDATED: make panel body scrollable */
+    .panel-body{ padding:14px 16px 18px; max-height:70vh; overflow-y:auto; }
+
+    #loading{ position:fixed; inset:0; display:none; place-items:center; z-index:60; background:rgba(3,8,23,.35); backdrop-filter: blur(2px); }
+    #loading .loader{ width:92px; height:92px; border-radius:16px; background: linear-gradient(180deg, #0d1733, #0b1226); border:1px solid #2a3355; display:grid; place-items:center; box-shadow:0 8px 30px #000a; }
+    .spin{ width:44px; height:44px; border-radius:50%; border:4px solid #22315a; border-top-color:#60a5fa; animation: spin 1s linear infinite; }
     @keyframes spin{ to { transform: rotate(360deg); } }
 
-    /* Toasts */
-    .toast{
-      position:fixed; right:14px; bottom:14px; z-index:70;
-      display:none; min-width: 200px;
-      background:#0d1733; border:1px solid #2a3355; color:#dbeafe; padding:10px 12px; border-radius:12px;
-      box-shadow:0 8px 30px #0008;
-    }
+    .toast{ position:fixed; right:14px; bottom:14px; z-index:70; display:none; min-width: 200px; background:#0d1733; border:1px solid #2a3355; color:#dbeafe; padding:10px 12px; border-radius:12px; box-shadow:0 8px 30px #0008; }
     .toast.show{ display:block; animation: fadein .15s ease; }
     @keyframes fadein{ from{ opacity:0; transform:translateY(6px)} to{ opacity:1; transform:translateY(0)} }
 
-    /* Help */
-    .kbd{
-      background:#0e1630; border:1px solid #2a3355; border-bottom-width:3px;
-      padding:2px 8px; border-radius:8px; font-weight:700; font-size:12px; color:#cbd5e1;
+    .kbd{ background:#0e1630; border:1px solid #2a3355; border-bottom-width:3px; padding:2px 8px; border-radius:8px; font-weight:700; font-size:12px; color:#cbd5e1; }
+    /* Inline spinner for mascot loading */
+    .mini-spin{
+      width:14px; height:14px; border-radius:50%;
+      border:2px solid #22315a; border-top-color:#60a5fa;
+      display:inline-block; vertical-align:-2px;
+      animation: spin 1s linear infinite; /* uses your existing @keyframes spin */
     }
+
+    /* Poster */
+    .poster {
+      width:100%; max-width:520px; border-radius:18px;
+      background:linear-gradient(135deg, #0ea5e9, #a78bfa);
+      color:white; padding:16px; border:1px solid #ffffff33; box-shadow:0 10px 40px #0007;
+    }
+    .poster .title { font-weight:900; font-size:22px; }
+    .poster .tag  { opacity:.95; margin:8px 0 12px; }
+    .poster .chips{ display:flex; flex-wrap:wrap; gap:6px; }
+    .poster .chip { background:#ffffff22; padding:4px 8px; border-radius:999px; font-weight:700; font-size:12px; }
   </style>
 </head>
 <body>
@@ -341,7 +190,7 @@
           </div>
         </div>
 
-        <!-- Right: results and history -->
+        <!-- Right: results + mascot + history -->
         <aside class="side" id="sidePanel">
           <h3>Latest Result</h3>
           <div class="status" id="statusBox">
@@ -371,6 +220,23 @@
             </div>
           </div>
 
+          <!-- Mascot Match (side) -->
+          <h3 style="margin-top:16px">Mascot Match</h3>
+          <div class="card" id="mascotCard">
+            <div id="mascotHeader" style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+              <div id="mascotEmoji" style="font-size:24px">🧩</div>
+              <div>
+                <div id="mascotName" style="font-weight:800">—</div>
+                <div id="mascotTag" class="muted">—</div>
+              </div>
+            </div>
+            <div id="mascotReasons" class="muted" style="margin:6px 0 10px"></div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px" id="bucketChips"></div>
+            <button class="kbtn" id="btnPoster"><i class="fa-regular fa-image"></i> Generate Poster</button>
+            <button class="kbtn ghost" id="btnSavePoster" disabled><i class="fa-solid fa-download"></i> Download Poster (PNG)</button>
+            <div id="posterWrap" style="margin-top:10px"></div>
+          </div>
+
           <h3 style="margin-top:16px">History</h3>
           <div class="card">
             <table id="historyTable">
@@ -384,11 +250,9 @@
   </div>
 
   <!-- Loading overlay -->
-  <div id="loading">
-    <div class="loader"><div class="spin" aria-label="Loading"></div></div>
-  </div>
+  <div id="loading"><div class="loader"><div class="spin" aria-label="Loading"></div></div></div>
 
-  <!-- Result modal for full table (kept your original id API) -->
+  <!-- Result modal -->
   <div id="resultModal" class="modal" aria-hidden="true">
     <div class="panel">
       <div class="panel-head">
@@ -397,17 +261,35 @@
       </div>
       <div class="panel-body">
         <div style="margin-bottom:12px" id="modalStatus"></div>
+
+        <!-- UPDATED: Mascot shown inside the same panel -->
+        <div class="card" id="modalMascotCard" style="margin-bottom:12px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div id="modalMascotEmoji" style="font-size:26px">🧩</div>
+            <div>
+              <div id="modalMascotName" style="font-weight:900; font-size:15px;">—</div>
+              <div id="modalMascotDesc" class="muted">—</div>
+            </div>
+          </div>
+        </div>
+
         <div class="card">
           <table id="resultTable">
-            <thead>
-              <tr><th>Color</th><th>Subjects</th></tr>
-            </thead>
+            <thead><tr><th>ภาคเรียน</th><th>รายวิชา</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
-        <div class="muted" style="margin-top:10px">
-          Tip: press Space to close the modal or take another shot.
+                <!-- NEW: confirm / reject controls -->
+        <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:12px;">
+          <button class="kbtn ok" id="btnConfirm"><i class="fa-solid fa-floppy-disk"></i> Confirm & Save <span class="muted">(Space)</span></button>
+          <button class="kbtn bad" id="btnReject"><i class="fa-solid fa-ban"></i> Reject <span class="muted">(Backspace)</span></button>
         </div>
+
+        <div class="muted" style="margin-top:10px">
+          Tip: press <span class="kbd">Space</span> to confirm & save, or <span class="kbd">Backspace</span> to reject.
+        </div>
+
+        <div class="muted" style="margin-top:10px">Tip: press Space to close the modal or take another shot.</div>
       </div>
     </div>
   </div>
@@ -430,7 +312,6 @@
     </div>
   </div>
 
-  <!-- Toast -->
   <div class="toast" id="toast"></div>
 
   <script>
@@ -473,7 +354,7 @@
 
     // Camera state
     let stream = null;
-    let currentFacing = 'environment'; // or 'user'
+    let currentFacing = 'environment';
     let currentDeviceId = null;
     let supportTorch = false;
 
@@ -481,41 +362,31 @@
     let lastResult = null;
 
     // Colors
-    const COLORS = {
-      'Blue':   '#00A8BE',
-      'Yellow': '#9FBB00',
-      'Red':    '#FF5E5E',
-      'Brown':  '#8B4513'
+    const COLORS = { 'Blue':'#00A8BE', 'Yellow':'#E5DE00', 'Red':'#EB3232', 'Brown':'#622F0B' };
+
+    // UPDATED: Thai headers & explicit order for modal
+    const TERM_HEADERS = {
+      Yellow: 'ม.5 เทอม 1',
+      Blue:   'ม.5 เทอม 2',
+      Red:    'ม.6 เทอม 1',
+      Brown:  'ม.6 เทอม 2'
     };
+    const MODAL_COLOR_ORDER = ['Yellow','Blue','Red','Brown'];
 
     // Utils
     function showToast(msg, ms=1800){ toast.textContent = msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'), ms); }
     function showLoading(v){ loading.style.display = v ? 'grid' : 'none'; }
     function showModal(el, v){ el.classList.toggle('show', v); el.setAttribute('aria-hidden', v ? 'false' : 'true'); }
-
-    function timeNow(){
-      const dt = new Date();
-      const pad=n=>String(n).padStart(2,'0');
-      return `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())} ${pad(dt.getHours())}:${pad(dt.getMinutes())}:${pad(dt.getSeconds())}`;
-    }
-
-    function setStatusIdle(){
-      statusBox.innerHTML = `<span class="badge"><i class="fa-regular fa-circle"></i> Idle</span>`;
-    }
-    function setStatusValid(){
-      statusBox.innerHTML = `<span class="badge ok"><i class="fa-solid fa-shield"></i> Valid</span>`;
-    }
-    function setStatusInvalid(){
-      statusBox.innerHTML = `<span class="badge bad"><i class="fa-solid fa-triangle-exclamation"></i> Invalid</span>`;
-      statusBox.classList.add('shake'); setTimeout(()=>statusBox.classList.remove('shake'), 600);
-    }
+    function timeNow(){ const dt=new Date(); const p=n=>String(n).padStart(2,'0'); return `${dt.getFullYear()}-${p(dt.getMonth()+1)}-${p(dt.getDate())} ${p(dt.getHours())}:${p(dt.getMinutes())}:${p(dt.getSeconds())}`; }
+    function setStatusIdle(){ statusBox.innerHTML = `<span class="badge"><i class="fa-regular fa-circle"></i> Idle</span>`; }
+    function setStatusValid(){ statusBox.innerHTML = `<span class="badge ok"><i class="fa-solid fa-shield"></i> Valid</span>`; }
+    function setStatusInvalid(){ statusBox.innerHTML = `<span class="badge bad"><i class="fa-solid fa-triangle-exclamation"></i> Invalid</span>`; statusBox.classList.add('shake'); setTimeout(()=>statusBox.classList.remove('shake'), 600); }
 
     // History
     function loadHistory(){ try{ return JSON.parse(localStorage.getItem('kvis_history')||'[]'); }catch{ return []; } }
     function saveHistory(arr){ localStorage.setItem('kvis_history', JSON.stringify(arr.slice(0,30))); }
     function pushHistory(entry){ const arr = loadHistory(); arr.unshift(entry); saveHistory(arr); renderHistory(); }
     function clearHistory(){ saveHistory([]); renderHistory(); showToast('History cleared'); }
-
     function renderHistory(){
       const tbody = document.querySelector('#historyTable tbody');
       tbody.innerHTML = '';
@@ -530,133 +401,140 @@
     }
 
     // Camera controls
-    async function getDevices(){
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      return devices.filter(d=>d.kind === 'videoinput');
-    }
-
+    async function getDevices(){ const devices = await navigator.mediaDevices.enumerateDevices(); return devices.filter(d=>d.kind === 'videoinput'); }
     async function startStream(opts={}){
-      if(stream){
-        stream.getTracks().forEach(t=>t.stop());
-        stream = null;
-      }
+      if(stream){ stream.getTracks().forEach(t=>t.stop()); stream=null; }
       const constraints = {
-        video: {
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
-          facingMode: opts.deviceId ? undefined : { ideal: currentFacing },
-          deviceId: opts.deviceId ? { exact: opts.deviceId } : undefined
-        },
+        video: { width:{ideal:1920}, height:{ideal:1080}, facingMode: opts.deviceId ? undefined : { ideal: currentFacing }, deviceId: opts.deviceId ? { exact: opts.deviceId } : undefined },
         audio: false
       };
       try{
         stream = await navigator.mediaDevices.getUserMedia(constraints);
         video.srcObject = stream;
-
-        // Torch capability
         const track = stream.getVideoTracks()[0];
         supportTorch = !!(track.getCapabilities && track.getCapabilities().torch);
         torchBtn.disabled = !supportTorch;
-
-        video.onloadedmetadata = () => {
-          canvas.width  = video.videoWidth  || 1920;
-          canvas.height = video.videoHeight || 1080;
-        };
-      }catch(err){
-        console.error('Camera error', err);
-        showToast('Cannot access camera');
-      }
+        video.onloadedmetadata = () => { canvas.width = video.videoWidth||1920; canvas.height = video.videoHeight||1080; };
+      }catch(err){ console.error('Camera error', err); showToast('Cannot access camera'); }
     }
-
     async function switchCamera(){
       const devs = await getDevices();
       if(!devs.length){ showToast('No other camera found'); return; }
-
-      // toggle facing if possible
       currentFacing = currentFacing === 'environment' ? 'user' : 'environment';
-
-      // Best effort deviceId selection to match facing
-      let target = null;
       const labelMatch = currentFacing === 'environment' ? /back|rear|environment/i : /front|user/i;
-      target = devs.find(d=>labelMatch.test(d.label)) || devs[0];
-      currentDeviceId = target.deviceId;
-      await startStream({ deviceId: currentDeviceId });
+      const target = devs.find(d=>labelMatch.test(d.label)) || devs[0];
+      currentDeviceId = target.deviceId; await startStream({ deviceId: currentDeviceId });
     }
-
     async function toggleTorch(){
-      if(!stream){ return; }
+      if(!stream) return;
       const track = stream.getVideoTracks()[0];
-      if(!(track.getCapabilities && track.getCapabilities().torch)){ return; }
-      const settings = track.getSettings();
-      const now = !settings.torch;
-      try{
-        await track.applyConstraints({ advanced: [{ torch: now }] });
-        showToast(now ? 'Torch on' : 'Torch off');
-      }catch(e){
-        showToast('Torch not available for this mode');
-      }
+      if(!(track.getCapabilities && track.getCapabilities().torch)) return;
+      const settings = track.getSettings(); const now = !settings.torch;
+      try{ await track.applyConstraints({ advanced: [{ torch: now }] }); showToast(now ? 'Torch on' : 'Torch off'); }
+      catch(e){ showToast('Torch not available for this mode'); }
     }
-
-    function toggleMirror(){
-      document.getElementById('cameraWrap').classList.toggle('mirrored');
-    }
-
-    function toggleGrid(){
-      gridlines.classList.toggle('show');
-    }
+    function toggleMirror(){ document.getElementById('cameraWrap').classList.toggle('mirrored'); }
+    function toggleGrid(){ gridlines.classList.toggle('show'); }
 
     // Capture
     async function capturePhoto(ev){
-      const useCountdown = ev && ev.shiftKey; // hold Shift for 3s timer
-      if(useCountdown){
-        await countdown(3);
-      }
-
+      const useCountdown = ev && ev.shiftKey;
+      if(useCountdown){ await countdown(3); }
       const ctx = canvas.getContext('2d');
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
       const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.95));
       if(!blob){ showToast('Capture failed'); return; }
-
       await uploadBlob(blob);
     }
-
     function countdown(s){
       return new Promise(resolve=>{
         const label = document.createElement('div');
-        label.style.position='absolute'; label.style.inset='0';
-        label.style.display='grid'; label.style.placeItems='center';
-        label.style.fontSize='80px'; label.style.fontWeight='900';
-        label.style.color='#e5e7eb'; label.style.textShadow='0 6px 30px #000a';
-        label.style.background='rgba(0,0,0,.25)';
-        label.style.backdropFilter='blur(1px)';
-        label.id = 'countdownLabel';
-        stage.appendChild(label);
-
-        let n = s;
-        label.textContent = n;
-        const id = setInterval(()=>{
-          n--; if(n<=0){ clearInterval(id); stage.removeChild(label); resolve(); }
-          else { label.textContent = n; }
-        }, 1000);
+        label.style.position='absolute'; label.style.inset='0'; label.style.display='grid'; label.style.placeItems='center';
+        label.style.fontSize='80px'; label.style.fontWeight='900'; label.style.color='#e5e7eb'; label.style.textShadow='0 6px 30px #000a';
+        label.style.background='rgba(0,0,0,.25)'; label.style.backdropFilter='blur(1px)'; label.id='countdownLabel'; stage.appendChild(label);
+        let n=s; label.textContent=n;
+        const id=setInterval(()=>{ n--; if(n<=0){ clearInterval(id); stage.removeChild(label); resolve(); } else label.textContent=n; },1000);
       });
     }
+      const btnConfirm = document.getElementById('btnConfirm');
+  const btnReject  = document.getElementById('btnReject');
 
+  async function confirmSave() {
+    if (!lastResult) return;
+    try {
+      const resp = await fetch('/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json' },
+        body: JSON.stringify({
+          subject_list: lastResult.subject_list || [],
+          validity: !!lastResult.validity,
+          reasons: lastResult.reasons || []
+        })
+      });
+      if (!resp.ok) throw new Error('Save failed');
+      const data = await resp.json();
+      if (!data.saved) throw new Error(data.error || 'Save failed');
+
+      // Only now we celebrate and record history
+      if (lastResult.validity) {
+        try { confetti({ particleCount: 140, spread: 80, origin: { y: 0.6 } }); } catch {}
+      }
+      pushHistory({
+        time: timeNow(),
+        summary: `Saved - ${lastResult.validity ? 'Valid' : 'Invalid'} - ${lastResult.subject_list.length} subjects`
+      });
+      showToast('Result saved to CSV');
+      showModal(resultModal, false);
+    } catch (e) {
+      console.error(e);
+      showToast('Save failed');
+    }
+  }
+
+  function rejectSave() {
+    showToast('Rejected — not saved');
+    showModal(resultModal, false);
+  }
+
+  btnConfirm.addEventListener('click', confirmSave);
+  btnReject.addEventListener('click', rejectSave);
+
+  // Modify keyboard shortcuts:
+  document.addEventListener('keydown', (e)=>{
+    if (['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return;
+
+    const modalOpen = resultModal.classList.contains('show');
+
+    // Space => capture when idle; confirm when modal is open
+    if (e.code === 'Space' || e.key === ' ') {
+      e.preventDefault();
+      if (modalOpen) { confirmSave(); }
+      else { capturePhoto(e); }
+      return;
+    }
+
+    // Backspace => reject when modal is open
+    if (modalOpen && e.key === 'Backspace') {
+      e.preventDefault();
+      rejectSave();
+      return;
+    }
+
+    // Other existing shortcuts
+    if(e.key==='s'||e.key==='S'){ switchCamera(); }
+    else if(e.key==='m'||e.key==='M'){ toggleMirror(); }
+    else if(e.key==='g'||e.key==='G'){ toggleGrid(); }
+  });
     async function uploadBlob(blob){
       showLoading(true);
       try{
-        const fd = new FormData();
-        fd.append('file', blob, 'photo.jpg');
+        const fd = new FormData(); fd.append('file', blob, 'photo.jpg');
         const resp = await fetch('/upload', { method:'POST', body: fd });
-        if(!resp.ok){ throw new Error('Server error'); }
+        if(!resp.ok) throw new Error('Server error');
         const data = await resp.json();
         handleResult(data);
-      }catch(e){
-        console.error(e);
-        showToast('Upload failed');
-      }finally{
-        showLoading(false);
-      }
+      }catch(e){ console.error(e); showToast('Upload failed'); }
+      finally{ showLoading(false); }
     }
 
     // Result handling
@@ -664,42 +542,33 @@
       lastResult = data;
       copyBtn.disabled = false; dlBtn.disabled = false;
 
-      // UI status
-      if(data.validity){
-        setStatusValid();
-        try{
-          confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
-        }catch{}
-      }else{
-        setStatusInvalid();
-      }
+      if (data.validity) { setStatusValid(); }
+      else { setStatusInvalid(); }
 
-      // Chips: totals
+
+      // Chips by color (keep existing order in chips, or change if you want the same order)
       const totalsByColor = { Blue:0, Yellow:0, Red:0, Brown:0 };
       for(const item of data.subject_list){ totalsByColor[item[0]] = (totalsByColor[item[0]]||0)+1; }
-      chipsWrap.innerHTML = '';
-      for(const k of Object.keys(COLORS)){
+      chipsWrap.innerHTML='';
+      // (Optional) also show in requested order:
+      ['Yellow','Blue','Red','Brown'].forEach(k=>{
         const chip = document.createElement('div');
-        chip.className = 'chip';
-        chip.style.borderColor = '#0000';
-        chip.style.boxShadow = `inset 0 0 0 2px ${COLORS[k]}33`;
+        chip.className='chip'; chip.style.boxShadow = `inset 0 0 0 2px ${COLORS[k]}33`;
         chip.innerHTML = `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${COLORS[k]};margin-right:8px;vertical-align:middle"></span>${k} <b>(${totalsByColor[k]||0})</b>`;
         chipsWrap.appendChild(chip);
-      }
+      });
 
-      // Compact table
+      // Compact subjects (unchanged)
       compactTbody.innerHTML = '';
-      if(!data.subject_list.length){
-        noData.style.display = '';
-      }else{
-        noData.style.display = 'none';
+      if(!data.subject_list.length){ noData.style.display=''; }
+      else{
+        noData.style.display='none';
         for(const [color, pair] of data.subject_list){
-          const tr = document.createElement('tr');
-          const c = document.createElement('td'); c.textContent = color; c.style.fontWeight='700'; c.style.color = '#e5e7eb'; c.style.background = COLORS[color]+'22';
-          const code = document.createElement('td'); code.textContent = pair[0];
-          const name = document.createElement('td'); name.textContent = pair[1];
-          tr.appendChild(c); tr.appendChild(code); tr.appendChild(name);
-          compactTbody.appendChild(tr);
+          const tr=document.createElement('tr');
+          const c=document.createElement('td'); c.textContent=color; c.style.fontWeight='700'; c.style.color='#e5e7eb'; c.style.background=COLORS[color]+'22';
+          const code=document.createElement('td'); code.textContent=pair[0];
+          const name=document.createElement('td'); name.textContent=pair[1];
+          tr.appendChild(c); tr.appendChild(code); tr.appendChild(name); compactTbody.appendChild(tr);
         }
       }
 
@@ -710,20 +579,27 @@
       metaReasons.style.color = (!data.validity && data.reasons && data.reasons.length) ? '#fca5a5' : '#8aa0ba';
       metaTime.textContent = timeNow();
 
-      // History entry
+      // History
       const summary = data.validity ? 'Valid' : 'Invalid';
-      pushHistory({ time: metaTime.textContent, summary: `${summary} - ${data.subject_list.length} subjects` });
-
-      // Full modal table (kept your original structure)
+      // Modal table
       fillModalTable(data);
       showModal(resultModal, true);
+
+      // Ask server/LLM for mascot (fresh per record)
+      recommendMascot(data);
     }
 
+    // UPDATED: modal table with required order + Thai headers
     function fillModalTable(data){
+      modalStatus.innerHTML = `<span class="badge">Pending</span> · ` +
+        (data.validity
+          ? `<span class="badge ok">Machine: Valid</span>`
+          : `<span class="badge bad">Machine: Invalid</span> ${data.reasons && data.reasons.length ? `<span class="muted"> - ${data.reasons.join(', ')}</span>` : ''}`
+        );
+
       resultTableBody.innerHTML = '';
 
-      const colors = Object.keys(COLORS);
-      for(const color of colors){
+      MODAL_COLOR_ORDER.forEach(color=>{
         const filtered = data.subject_list.filter(item => item[0] === color);
 
         const colorRow = resultTableBody.insertRow();
@@ -733,7 +609,7 @@
         colorCell.style.color = '#fff';
         colorCell.style.fontWeight = 'bold';
         colorCell.style.padding = '8px 10px';
-        colorCell.textContent = `${color} (${filtered.length})`;
+        colorCell.textContent = `${TERM_HEADERS[color] || color} (${filtered.length})`;
 
         if(filtered.length){
           for(const subject of filtered){
@@ -747,41 +623,196 @@
           const row = resultTableBody.insertRow();
           const cell = row.insertCell(0);
           cell.colSpan = 2;
-          cell.textContent = 'No subjects found for this color.';
+          cell.textContent = '—';
         }
-      }
+      });
 
-      modalStatus.innerHTML = data.validity
-        ? `<span class="badge ok">Valid</span>`
+      modalStatus.innerHTML = data.validity ? `<span class="badge ok">Valid</span>`
         : `<span class="badge bad">Invalid</span> ${data.reasons && data.reasons.length ? `<span class="muted"> - ${data.reasons.join(', ')}</span>` : ''}`;
     }
 
-    // Copy and download
-    function copyResult(){
-      if(!lastResult){ return; }
-      const txt = JSON.stringify(lastResult, null, 2);
-      navigator.clipboard.writeText(txt).then(()=>showToast('Copied to clipboard'));
-    }
-
+    // Copy & download JSON
+    function copyResult(){ if(!lastResult) return; const txt=JSON.stringify(lastResult,null,2); navigator.clipboard.writeText(txt).then(()=>showToast('Copied to clipboard')); }
     function downloadResult(){
-      if(!lastResult){ return; }
+      if(!lastResult) return;
       const blob = new Blob([JSON.stringify(lastResult, null, 2)], {type:'application/json'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = `kvis_result_${Date.now()}.json`;
-      document.body.appendChild(a); a.click(); a.remove();
-      URL.revokeObjectURL(url);
+      const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`kvis_result_${Date.now()}.json`;
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
     }
 
-    // Init
-    async function init(){
-      setStatusIdle();
-      renderHistory();
-      await startStream(); // try default facing
-      showToast('Camera ready');
+    // Mascot (LLM)
+    async function recommendMascot(scanData){
+      setMascotLoading(true);
+      try{
+        const resp = await fetch('/recommend', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ subject_list: scanData.subject_list || [] })
+        });
+        const rec = await resp.json();
+        if(rec.error) throw new Error(rec.error);
+
+        renderMascot(rec);         // side card
+        renderMascotInModal(rec);  // modal header card
+      }catch(e){
+        console.error(e);
+        showToast('Mascot suggestion failed');
+
+        // Graceful fallback texts
+        document.getElementById('mascotEmoji').textContent = '❌';
+        document.getElementById('mascotName').textContent  = 'สร้างมาสคอตไม่สำเร็จ';
+        document.getElementById('mascotTag').textContent   = 'โปรดลองสแกนใหม่อีกครั้ง';
+
+        document.getElementById('modalMascotEmoji').textContent = '❌';
+        document.getElementById('modalMascotName').textContent  = 'สร้างมาสคอตไม่สำเร็จ';
+        document.getElementById('modalMascotDesc').textContent  = 'โปรดลองสแกนใหม่อีกครั้ง';
+      }finally{
+        // Stop showing the spinner (buttons re-enabled)
+        setMascotLoading(false);
+      }
     }
 
-    // Events
+
+    function renderMascot(rec){
+      const name = document.getElementById('mascotName');
+      const tag  = document.getElementById('mascotTag');
+      const emj  = document.getElementById('mascotEmoji');
+      const rsn  = document.getElementById('mascotReasons');
+      const chips= document.getElementById('bucketChips');
+
+      emj.textContent = rec.emoji || '🧩';
+      name.textContent = rec.mascot || '—';
+      tag.textContent  = rec.description || '—';
+      rsn.innerHTML    = (rec.reasons||[]).map(x=>`• ${x}`).join('<br>');
+
+      chips.innerHTML = '';
+      const map = { PHYS:'ฟิสิกส์', MATH:'คณิต', CHEM:'เคมี', BIO:'ชีวะ', CS:'คอมพิวเตอร์', INT:'บูรณาการ', ART:'ศิลป์', LANG:'ภาษา' };
+      Object.entries(rec.counts||{}).forEach(([k,v])=>{
+        const div=document.createElement('div'); div.className='chip'; div.textContent = `${map[k]||k}: ${v}`; chips.appendChild(div);
+      });
+
+      document.getElementById('btnPoster').onclick = ()=>makePoster(rec);
+      document.getElementById('btnSavePoster').onclick = savePosterPNG;
+    }
+
+    // UPDATED: render mascot into modal card
+    function renderMascotInModal(rec){
+      document.getElementById('modalMascotEmoji').textContent = rec.emoji || '🧩';
+      document.getElementById('modalMascotName').textContent  = rec.mascot || '—';
+      document.getElementById('modalMascotDesc').textContent  = rec.description || '—';
+    }
+    function setMascotLoading(isLoading){
+      // Side card elems
+      const name   = document.getElementById('mascotName');
+      const tag    = document.getElementById('mascotTag');
+      const emj    = document.getElementById('mascotEmoji');
+      const rsn    = document.getElementById('mascotReasons');
+      const chips  = document.getElementById('bucketChips');
+      const poster = document.getElementById('btnPoster');
+      const save   = document.getElementById('btnSavePoster');
+      const posterWrap = document.getElementById('posterWrap');
+
+      // Modal elems
+      const mName  = document.getElementById('modalMascotName');
+      const mDesc  = document.getElementById('modalMascotDesc');
+      const mEmoji = document.getElementById('modalMascotEmoji');
+
+      if(isLoading){
+        // Side
+        emj.textContent = '⏳';
+        name.textContent = 'กำลังกำหนดมาสคอต…';
+        tag.innerHTML = `<span class="mini-spin" aria-label="Loading"></span> กำลังสร้างคำบรรยาย`;
+        rsn.textContent = '—';
+        chips.innerHTML = '';
+        poster.disabled = true;
+        save.disabled = true;
+        posterWrap.innerHTML = '';
+
+        // Modal
+        mEmoji.textContent = '⏳';
+        mName.textContent  = 'กำลังคำนวณมาสคอต…';
+        mDesc.innerHTML    = `<span class="mini-spin" aria-label="Loading"></span> กำลังสร้างคำบรรยาย`;
+      }else{
+        // Re-enable actions; actual text is filled by renderMascot*
+        poster.disabled = false;
+      }
+    }
+
+
+    function makePoster(rec){
+      const posterWrap = document.getElementById('posterWrap');
+      const subjects = [];
+      Object.values(rec.details||{}).forEach(arr=>{ arr.forEach(it=>subjects.push(it.name)); });
+      const subjChips = subjects.slice(0,10).map(s=>`<span class="chip">${s}</span>`).join('');
+      const GRADS = {
+        PHYS:['#22d3ee','#60a5fa'], MATH:['#34d399','#22c55e'], CHEM:['#f59e0b','#f97316'],
+        BIO:['#10b981','#84cc16'], CS:['#3b82f6','#a78bfa'], INT:['#f43f5e','#f97316'],
+        ART:['#e879f9','#f97316'], LANG:['#22d3ee','#a78bfa']
+      };
+      const g = GRADS[rec.code || 'INT'] || GRADS['INT'];
+
+      const svg = `
+      <svg id="posterSVG" xmlns="http://www.w3.org/2000/svg" width="1200" height="1600" viewBox="0 0 1200 1600">
+        <defs>
+          <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="${g[0]}"/><stop offset="1" stop-color="${g[1]}"/>
+          </linearGradient>
+          <style>
+            .t1{font: 700 72px 'Inter', sans-serif; fill: #fff}
+            .t2{font: 600 36px 'Inter', sans-serif; fill: #fff}
+            .t3{font: 400 28px 'Inter', sans-serif; fill: #eef2ff}
+            .chip{font: 700 26px 'Inter', sans-serif; fill: #111827}
+          </style>
+        </defs>
+        <rect width="1200" height="1600" rx="48" fill="url(#bg)"/>
+        <circle cx="1050" cy="180" r="120" fill="#ffffff22"/>
+        <text x="80" y="200" class="t1">${rec.emoji || '🧩'} ${rec.mascot || ''}</text>
+        <text x="80" y="270" class="t2">${(rec.description||'').replace(/&/g,'&amp;')}</text>
+
+        <text x="80" y="360" class="t2">Subjects you love</text>
+        <g transform="translate(80,400)">
+          ${(subjects.slice(0,10)).map((s,i)=>{
+            const x = (i%2)*520; const y = Math.floor(i/2)*70;
+            return `<rect x="${x}" y="${y}" rx="16" width="480" height="56" fill="#ffffffee"/>
+                    <text x="${x+20}" y="${y+38}" class="chip">${s.replace(/&/g,'&amp;')}</text>`;
+          }).join('')}
+        </g>
+
+        <text x="80" y="1500" class="t3">KVIS Open House • ${new Date().toLocaleDateString()}</text>
+      </svg>`;
+      posterWrap.innerHTML = `<div class="poster">
+        <div class="title">${rec.emoji||'🧩'} ${rec.mascot||''}</div>
+        <div class="tag">${rec.description||''}</div>
+        <div class="chips">${subjChips}</div>
+        <div style="margin-top:10px">${svg}</div>
+      </div>`;
+      document.getElementById('btnSavePoster').disabled = false;
+    }
+    function savePosterPNG(){
+      const svgEl = document.getElementById('posterSVG');
+      if(!svgEl){ showToast('Generate poster first'); return; }
+      const s = new XMLSerializer().serializeToString(svgEl);
+      const url = URL.createObjectURL(new Blob([s], {type:'image/svg+xml'}));
+      const img = new Image();
+      img.onload = function(){
+        const canvas = document.createElement('canvas');
+        canvas.width = svgEl.viewBox.baseVal.width || svgEl.width.baseVal.value;
+        canvas.height= svgEl.viewBox.baseVal.height|| svgEl.height.baseVal.value;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        URL.revokeObjectURL(url);
+        canvas.toBlob((blob)=>{
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = `kvis_mascot_${Date.now()}.png`;
+          document.body.appendChild(a); a.click(); a.remove();
+        }, 'image/png', 0.95);
+      };
+      img.src = url;
+    }
+
+    // Init & events
+    async function init(){ setStatusIdle(); renderHistory(); await startStream(); showToast('Camera ready'); }
     captureBtn.addEventListener('click', capturePhoto);
     mirrorBtn.addEventListener('click', toggleMirror);
     gridBtn.addEventListener('click', toggleGrid);
@@ -790,40 +821,21 @@
     helpBtn.addEventListener('click', ()=>showModal(helpModal, true));
     closeHelpBtn.addEventListener('click', ()=>showModal(helpModal, false));
     btnCloseModal.addEventListener('click', ()=>showModal(resultModal, false));
-
     copyBtn.addEventListener('click', copyResult);
     dlBtn.addEventListener('click', downloadResult);
     clearBtn.addEventListener('click', clearHistory);
     btnCountdown.addEventListener('click', ()=>showToast('Hold Shift then click Capture for 3 second timer'));
-
-    // Close modals by clicking the backdrop
-    [resultModal, helpModal].forEach(modal=>{
-      modal.addEventListener('click', (e)=>{ if(e.target === modal){ showModal(modal, false); }});
-    });
-
-    // Keyboard
+    [resultModal, helpModal].forEach(modal=>{ modal.addEventListener('click', (e)=>{ if(e.target === modal){ showModal(modal, false); }}); });
     document.addEventListener('keydown', (e)=>{
       if(['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return;
-
-      if(e.code === 'Space' || e.key === ' '){
-        e.preventDefault();
-        if(resultModal.classList.contains('show')) showModal(resultModal, false);
-        else capturePhoto(e);
-      }else if(e.key === 's' || e.key === 'S'){
-        switchCamera();
-      }else if(e.key === 'm' || e.key === 'M'){
-        toggleMirror();
-      }else if(e.key === 'g' || e.key === 'G'){
-        toggleGrid();
-      }
+      if(e.code === 'Space' || e.key === ' '){ e.preventDefault(); if(resultModal.classList.contains('show')) showModal(resultModal, false); else capturePhoto(e); }
+      else if(e.key==='s'||e.key==='S'){ switchCamera(); }
+      else if(e.key==='m'||e.key==='M'){ toggleMirror(); }
+      else if(e.key==='g'||e.key==='G'){ toggleGrid(); }
     });
 
-    // Start
-    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
-      showToast('Camera API not supported');
-    }else{
-      init();
-    }
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ showToast('Camera API not supported'); }
+    else{ init(); }
   </script>
 </body>
 </html>

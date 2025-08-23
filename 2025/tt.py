@@ -23,8 +23,8 @@ import numpy as np
 CONFIG = {
     # Y ratios for top and bottom bands: [start_ratio, end_ratio]
     # 0.0 = top of image, 1.0 = bottom of image
-    "top_band_ratio": [0.00, 0.53],
-    "bottom_band_ratio": [0.53, 1.00],
+    "top_band_ratio": [0.00, 0.55],
+    "bottom_band_ratio": [0.55, 1.00],
 
     # X ratios for TOP band (7 values for 6 columns)
     "top_column_ratios": [0.03, 0.19, 0.34, 0.49, 0.64, 0.79, 0.95],

@@ -1,7 +1,8 @@
 captured
 cropped
 processed
-
+seg_out_tmp
+seg_vis_custom
 seg_out
 results
 datasets
